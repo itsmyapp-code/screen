@@ -164,6 +164,10 @@ export const DashboardPage = () => {
 
   const onSave = async (event: FormEvent) => {
     event.preventDefault()
+
+    // Ensure the latest typed amount is committed even if the input is still focused.
+    commitPriceInput()
+
     try {
       await pushBoardUpdate(board)
       setSavedAt(new Date())
@@ -357,16 +361,28 @@ export const DashboardPage = () => {
     setSelectedNoticeId(nextNotices[0]?.id ?? '')
   }
 
+  const parsePriceToPence = (value: string): number | null => {
+    const cleaned = value.replace(',', '.').replace(/[^\d.]/g, '')
+    if (cleaned.trim() === '') {
+      return null
+    }
+
+    const parts = cleaned.split('.')
+    const normalized = parts.length <= 1 ? cleaned : `${parts[0]}.${parts.slice(1).join('')}`
+    const pounds = Number.parseFloat(normalized)
+    if (!Number.isFinite(pounds)) {
+      return null
+    }
+
+    return Math.max(0, Math.round(pounds * 100))
+  }
+
   const commitPriceInput = (): void => {
     if (!selectedItem) {
       return
     }
 
-    const cleaned = priceInput.replace(',', '.').replace(/[^\d.]/g, '')
-    const parts = cleaned.split('.')
-    const normalized = parts.length <= 1 ? cleaned : `${parts[0]}.${parts.slice(1).join('')}`
-    const pounds = Number.parseFloat(normalized)
-    const pence = Number.isFinite(pounds) ? Math.max(0, Math.round(pounds * 100)) : 0
+    const pence = parsePriceToPence(priceInput) ?? 0
     updateItem((current) => ({ ...current, pricePence: pence }))
     setPriceInput((pence / 100).toFixed(2))
   }
@@ -745,15 +761,20 @@ export const DashboardPage = () => {
                         />
                         <input
                           className="h-10 rounded-lg border border-neutral-300 px-3 text-sm"
-                          value={(item.pricePence / 100).toFixed(2)}
-                          onChange={(event) => {
-                            const cleaned = event.target.value.replace(',', '.').replace(/[^\d.]/g, '')
-                            const pounds = Number.parseFloat(cleaned)
-                            const pence = Number.isFinite(pounds) ? Math.max(0, Math.round(pounds * 100)) : 0
+                          defaultValue={(item.pricePence / 100).toFixed(2)}
+                          onBlur={(event) => {
+                            const pence = parsePriceToPence(event.target.value) ?? 0
                             updateItemById(selectedSection.id, item.id, (current) => ({
                               ...current,
                               pricePence: pence,
                             }))
+                            event.target.value = (pence / 100).toFixed(2)
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              event.preventDefault()
+                              event.currentTarget.blur()
+                            }
                           }}
                           inputMode="decimal"
                           placeholder="0.00"
@@ -892,7 +913,13 @@ export const DashboardPage = () => {
                   placeholder="0.00"
                   value={priceInput}
                   onChange={(event) => {
-                    setPriceInput(event.target.value)
+                    const typedValue = event.target.value
+                    setPriceInput(typedValue)
+
+                    const pence = parsePriceToPence(typedValue)
+                    if (pence !== null) {
+                      updateItem((current) => ({ ...current, pricePence: pence }))
+                    }
                   }}
                   onBlur={() => {
                     commitPriceInput()

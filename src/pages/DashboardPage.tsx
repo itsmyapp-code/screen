@@ -38,6 +38,9 @@ export const DashboardPage = () => {
   const [selectedSectionId, setSelectedSectionId] = useState(board.menuSections[0].id)
   const [selectedItemId, setSelectedItemId] = useState(board.menuSections[0].items[0].id)
   const [selectedNoticeId, setSelectedNoticeId] = useState(board.sidebarItems[0]?.id ?? '')
+  const [priceInput, setPriceInput] = useState(
+    ((board.menuSections[0].items[0]?.pricePence ?? 0) / 100).toFixed(2),
+  )
   const [savedAt, setSavedAt] = useState<Date | null>(null)
 
   const live = useLiveMenu(boardId ?? defaultBoardId)
@@ -117,6 +120,10 @@ export const DashboardPage = () => {
     () => board.sidebarItems.find((notice) => notice.id === selectedNoticeId) ?? board.sidebarItems[0],
     [board.sidebarItems, selectedNoticeId],
   )
+
+  useEffect(() => {
+    setPriceInput(((selectedItem?.pricePence ?? 0) / 100).toFixed(2))
+  }, [selectedItem?.id, selectedItem?.pricePence])
 
   const updateItem = (updater: (draft: typeof selectedItem) => typeof selectedItem): void => {
     if (!selectedSection || !selectedItem) {
@@ -308,6 +315,20 @@ export const DashboardPage = () => {
       sidebarItems: nextNotices,
     }))
     setSelectedNoticeId(nextNotices[0]?.id ?? '')
+  }
+
+  const commitPriceInput = (): void => {
+    if (!selectedItem) {
+      return
+    }
+
+    const cleaned = priceInput.replace(',', '.').replace(/[^\d.]/g, '')
+    const parts = cleaned.split('.')
+    const normalized = parts.length <= 1 ? cleaned : `${parts[0]}.${parts.slice(1).join('')}`
+    const pounds = Number.parseFloat(normalized)
+    const pence = Number.isFinite(pounds) ? Math.max(0, Math.round(pounds * 100)) : 0
+    updateItem((current) => ({ ...current, pricePence: pence }))
+    setPriceInput((pence / 100).toFixed(2))
   }
 
   const updatePlaybackMode = (mode: PlaybackMode): void => {
@@ -753,72 +774,76 @@ export const DashboardPage = () => {
         </header>
 
         <form className="mt-6 space-y-4" onSubmit={onSave}>
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Playback Mode</span>
-            <select
-              className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
-              value={board.playbackMode}
-              onChange={(event) => updatePlaybackMode(event.target.value as PlaybackMode)}
-            >
-              <option value="MENU_ONLY">Menu only</option>
-              <option value="MIXED">Menu + media rotation</option>
-              <option value="MEDIA_ONLY">Media only</option>
-            </select>
-          </label>
+          {editorMode === 'MEDIA' && (
+            <>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Playback Mode</span>
+                <select
+                  className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                  value={board.playbackMode}
+                  onChange={(event) => updatePlaybackMode(event.target.value as PlaybackMode)}
+                >
+                  <option value="MENU_ONLY">Menu only</option>
+                  <option value="MIXED">Menu + media rotation</option>
+                  <option value="MEDIA_ONLY">Media only</option>
+                </select>
+              </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Hold (seconds)</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              type="number"
-              min="5"
-              max="120"
-              value={board.menuHoldSeconds}
-              onChange={(event) => {
-                const seconds = Number.parseInt(event.target.value, 10)
-                setBoard((prev) => ({
-                  ...prev,
-                  menuHoldSeconds: Number.isFinite(seconds) ? Math.max(5, seconds) : 20,
-                }))
-              }}
-            />
-          </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Hold (seconds)</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  type="number"
+                  min="5"
+                  max="120"
+                  value={board.menuHoldSeconds}
+                  onChange={(event) => {
+                    const seconds = Number.parseInt(event.target.value, 10)
+                    setBoard((prev) => ({
+                      ...prev,
+                      menuHoldSeconds: Number.isFinite(seconds) ? Math.max(5, seconds) : 20,
+                    }))
+                  }}
+                />
+              </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Header Image URL</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              placeholder="/screen-logo.png or https://..."
-              value={board.heroImageUrl ?? ''}
-              onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
-            />
-            <input
-              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-              type="file"
-              accept="image/*"
-              onChange={(event) => {
-                void uploadBoardImage(event, 'heroImageUrl')
-              }}
-            />
-          </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Header Image URL</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  placeholder="/screen-logo.png or https://..."
+                  value={board.heroImageUrl ?? ''}
+                  onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
+                />
+                <input
+                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadBoardImage(event, 'heroImageUrl')
+                  }}
+                />
+              </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Sidebar Image URL</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              placeholder="/screen-logo.png or https://..."
-              value={board.sidebarImageUrl ?? ''}
-              onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
-            />
-            <input
-              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-              type="file"
-              accept="image/*"
-              onChange={(event) => {
-                void uploadBoardImage(event, 'sidebarImageUrl')
-              }}
-            />
-          </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Sidebar Image URL</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  placeholder="/screen-logo.png or https://..."
+                  value={board.sidebarImageUrl ?? ''}
+                  onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
+                />
+                <input
+                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadBoardImage(event, 'sidebarImageUrl')
+                  }}
+                />
+              </label>
+            </>
+          )}
 
           {editorMode === 'MENU' && (
             <>
@@ -829,7 +854,39 @@ export const DashboardPage = () => {
                 <p>
                   Editing item: <span className="font-bold text-neutral-900">{selectedItem?.name ?? 'No item selected'}</span>
                 </p>
-                <p className="mt-1 text-xs text-neutral-600">Use the hamburger menu to pick names, add, or delete.</p>
+                <p className="mt-1 text-xs text-neutral-600">Quick actions below for faster menu updates.</p>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
+                    onClick={addMenuItem}
+                  >
+                    Add Item
+                  </button>
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
+                    onClick={deleteSelectedMenuItem}
+                    disabled={!selectedItem || selectedSection.items.length <= 1}
+                  >
+                    Delete Item
+                  </button>
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
+                    onClick={addMenuSection}
+                  >
+                    Add Section
+                  </button>
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
+                    onClick={deleteSelectedSection}
+                    disabled={board.menuSections.length <= 1}
+                  >
+                    Delete Section
+                  </button>
+                </div>
               </div>
 
               <label className="block">
@@ -874,16 +931,22 @@ export const DashboardPage = () => {
                   className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
                   type="text"
                   inputMode="decimal"
-                  pattern="^\\d*(\\.\\d{0,2})?$"
                   placeholder="0.00"
-                  value={(selectedItem.pricePence / 100).toFixed(2)}
+                  value={priceInput}
                   onChange={(event) => {
-                    const normalised = event.target.value.replace(/[^\d.]/g, '')
-                    const pounds = Number.parseFloat(normalised)
-                    const pence = Number.isFinite(pounds) ? Math.round(pounds * 100) : 0
-                    updateItem((current) => ({ ...current, pricePence: pence }))
+                    setPriceInput(event.target.value)
+                  }}
+                  onBlur={() => {
+                    commitPriceInput()
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault()
+                      commitPriceInput()
+                    }
                   }}
                 />
+                <p className="mt-1 text-xs text-neutral-600">Type freely (for example 7.9 or 7.90), then tab out.</p>
               </label>
 
               <label className="block">

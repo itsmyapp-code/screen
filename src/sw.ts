@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { CacheFirst, NetworkFirst } from 'workbox-strategies'
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -18,7 +18,10 @@ registerRoute(
 
 registerRoute(
   ({ request }) => request.destination === 'script' || request.destination === 'style',
-  new StaleWhileRevalidate({ cacheName: 'asset-cache-v1' }),
+  new NetworkFirst({
+    cacheName: 'asset-cache-v2',
+    networkTimeoutSeconds: 3,
+  }),
 )
 
 registerRoute(

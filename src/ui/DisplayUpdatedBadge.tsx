@@ -15,7 +15,7 @@ export const DisplayUpdatedBadge = () => {
   }, [])
 
   return (
-    <div className="absolute right-4 top-4 rounded-lg border border-emerald-200/50 bg-neutral-950/65 px-3 py-1.5 text-xs font-semibold text-emerald-100">
+    <div className="absolute bottom-2 right-2 rounded-lg border border-emerald-200/50 bg-neutral-950/65 px-3 py-1.5 text-xs font-semibold text-emerald-100">
       Updated {formatDateUK(now)}
     </div>
   )

@@ -6,6 +6,7 @@ import { defaultBoardId, defaultBoards } from '../data/defaultBoards'
 import { useAuthUser } from '../hooks/useAuthUser'
 import { useLiveMenu } from '../hooks/useLiveMenu'
 import { auth } from '../lib/firebase'
+import { imageFileToWebpDataUrl, validateImageFile } from '../lib/imageUpload'
 import { pushBoardUpdate } from '../lib/pushBoardUpdate'
 import { formatDateUK } from '../lib/format'
 import { ensureUserBoard } from '../lib/userBoard'
@@ -30,6 +31,7 @@ export const DashboardPage = () => {
   const [board, setBoard] = useState<SignageBoardConfig>(defaultBoards[defaultBoardId])
   const [selectedSectionId, setSelectedSectionId] = useState(board.menuSections[0].id)
   const [selectedItemId, setSelectedItemId] = useState(board.menuSections[0].items[0].id)
+  const [selectedNoticeId, setSelectedNoticeId] = useState(board.sidebarItems[0]?.id ?? '')
   const [savedAt, setSavedAt] = useState<Date | null>(null)
 
   const live = useLiveMenu(boardId ?? defaultBoardId)
@@ -84,6 +86,17 @@ export const DashboardPage = () => {
     }
   }, [board.menuSections, selectedSectionId, selectedItemId])
 
+  useEffect(() => {
+    if (board.sidebarItems.length === 0) {
+      setSelectedNoticeId('')
+      return
+    }
+
+    if (!board.sidebarItems.some((notice) => notice.id === selectedNoticeId)) {
+      setSelectedNoticeId(board.sidebarItems[0].id)
+    }
+  }, [board.sidebarItems, selectedNoticeId])
+
   const selectedSection = useMemo(
     () => board.menuSections.find((section) => section.id === selectedSectionId) ?? board.menuSections[0],
     [board.menuSections, selectedSectionId],
@@ -92,6 +105,11 @@ export const DashboardPage = () => {
   const selectedItem = useMemo(
     () => selectedSection?.items.find((item) => item.id === selectedItemId) ?? selectedSection?.items[0],
     [selectedSection, selectedItemId],
+  )
+
+  const selectedNotice = useMemo(
+    () => board.sidebarItems.find((notice) => notice.id === selectedNoticeId) ?? board.sidebarItems[0],
+    [board.sidebarItems, selectedNoticeId],
   )
 
   const updateItem = (updater: (draft: typeof selectedItem) => typeof selectedItem): void => {
@@ -148,6 +166,97 @@ export const DashboardPage = () => {
     }))
   }
 
+  const addMenuItem = (): void => {
+    if (!selectedSection) {
+      return
+    }
+
+    const nextId = `item-${Date.now()}`
+    const nextItem = {
+      id: nextId,
+      name: 'New item',
+      description: '',
+      pricePence: 0,
+      statusTags: [] as StatusTag[],
+    }
+
+    setBoard((prev) => ({
+      ...prev,
+      menuSections: prev.menuSections.map((section) =>
+        section.id === selectedSection.id
+          ? {
+              ...section,
+              items: [...section.items, nextItem],
+            }
+          : section,
+      ),
+    }))
+    setSelectedItemId(nextId)
+  }
+
+  const deleteSelectedMenuItem = (): void => {
+    if (!selectedSection || !selectedItem || selectedSection.items.length <= 1) {
+      return
+    }
+
+    const nextItems = selectedSection.items.filter((item) => item.id !== selectedItem.id)
+    setBoard((prev) => ({
+      ...prev,
+      menuSections: prev.menuSections.map((section) =>
+        section.id === selectedSection.id
+          ? {
+              ...section,
+              items: nextItems,
+            }
+          : section,
+      ),
+    }))
+    setSelectedItemId(nextItems[0]?.id ?? '')
+  }
+
+  const updateNotice = (updater: (notice: typeof selectedNotice) => typeof selectedNotice): void => {
+    if (!selectedNotice) {
+      return
+    }
+
+    setBoard((prev) => ({
+      ...prev,
+      sidebarItems: prev.sidebarItems.map((notice) =>
+        notice.id === selectedNotice.id ? updater(notice) : notice,
+      ),
+    }))
+  }
+
+  const addNotice = (): void => {
+    const nextId = `notice-${Date.now()}`
+    setBoard((prev) => ({
+      ...prev,
+      sidebarItems: [
+        ...prev.sidebarItems,
+        {
+          id: nextId,
+          kind: 'OFFER',
+          headline: 'New notice',
+          body: '',
+        },
+      ],
+    }))
+    setSelectedNoticeId(nextId)
+  }
+
+  const deleteSelectedNotice = (): void => {
+    if (!selectedNotice || board.sidebarItems.length <= 1) {
+      return
+    }
+
+    const nextNotices = board.sidebarItems.filter((notice) => notice.id !== selectedNotice.id)
+    setBoard((prev) => ({
+      ...prev,
+      sidebarItems: nextNotices,
+    }))
+    setSelectedNoticeId(nextNotices[0]?.id ?? '')
+  }
+
   const updatePlaybackMode = (mode: PlaybackMode): void => {
     setBoard((prev) => ({ ...prev, playbackMode: mode }))
   }
@@ -190,34 +299,6 @@ export const DashboardPage = () => {
     await signOut(auth)
   }
 
-  const fileToDataUrl = async (file: File): Promise<string> => {
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result)
-          return
-        }
-
-        reject(new Error('Image read failed.'))
-      }
-      reader.onerror = () => reject(new Error('Image read failed.'))
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const validateImageFile = (file: File): string | null => {
-    if (!file.type.startsWith('image/')) {
-      return 'Please choose an image file.'
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      return 'Image is too large. Keep it under 2MB for reliable sync.'
-    }
-
-    return null
-  }
-
   const uploadBoardImage = async (
     event: ChangeEvent<HTMLInputElement>,
     field: 'heroImageUrl' | 'sidebarImageUrl',
@@ -235,7 +316,7 @@ export const DashboardPage = () => {
     }
 
     try {
-      const url = await fileToDataUrl(file)
+      const url = await imageFileToWebpDataUrl(file)
       setBoard((prev) => ({
         ...prev,
         [field]: url,
@@ -262,7 +343,7 @@ export const DashboardPage = () => {
     }
 
     try {
-      const url = await fileToDataUrl(file)
+      const url = await imageFileToWebpDataUrl(file)
       updateItem((current) => ({ ...current, imageUrl: url }))
       setSetupError('')
     } catch (reason) {
@@ -289,7 +370,7 @@ export const DashboardPage = () => {
     }
 
     try {
-      const url = await fileToDataUrl(file)
+      const url = await imageFileToWebpDataUrl(file)
       updateMediaAsset(assetId, (asset) => ({
         ...asset,
         type: 'IMAGE',
@@ -323,7 +404,7 @@ export const DashboardPage = () => {
     )
   }
 
-  if (!selectedSection || !selectedItem) {
+  if (!selectedSection) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-100 text-neutral-700">
         Board has no editable menu items.
@@ -523,7 +604,7 @@ export const DashboardPage = () => {
                 }
 
                 setSelectedSectionId(nextSection.id)
-                setSelectedItemId(nextSection.items[0].id)
+                setSelectedItemId(nextSection.items[0]?.id ?? '')
               }}
             >
               {board.menuSections.map((section) => (
@@ -536,95 +617,198 @@ export const DashboardPage = () => {
 
           <label className="block">
             <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Item</span>
-            <select
-              className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
-              value={selectedItem.id}
-              onChange={(event) => setSelectedItemId(event.target.value)}
-            >
-              {selectedSection.items.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Name</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              value={selectedItem.name}
-              onChange={(event) => updateItem((current) => ({ ...current, name: event.target.value }))}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Description</span>
-            <textarea
-              className="min-h-28 w-full rounded-xl border border-neutral-300 px-4 py-3 text-base"
-              value={selectedItem.description}
-              onChange={(event) => updateItem((current) => ({ ...current, description: event.target.value }))}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Price (GBP)</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              type="number"
-              min="0"
-              step="0.01"
-              value={(selectedItem.pricePence / 100).toFixed(2)}
-              onChange={(event) => {
-                const pounds = Number.parseFloat(event.target.value)
-                const pence = Number.isFinite(pounds) ? Math.round(pounds * 100) : 0
-                updateItem((current) => ({ ...current, pricePence: pence }))
-              }}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Item Image URL</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              placeholder="/screen-logo.png or https://..."
-              value={selectedItem.imageUrl ?? ''}
-              onChange={(event) => updateItem((current) => ({
-                ...current,
-                imageUrl: event.target.value.trim() === '' ? undefined : event.target.value,
-              }))}
-            />
-            <input
-              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-              type="file"
-              accept="image/*"
-              onChange={(event) => {
-                void uploadSelectedItemImage(event)
-              }}
-            />
-          </label>
-
-          <fieldset>
-            <legend className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Status Tags</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {TAG_OPTIONS.map((tag) => {
-                const active = selectedItem.statusTags.includes(tag.value)
-                return (
-                  <button
-                    key={tag.value}
-                    type="button"
-                    className={
-                      active
-                        ? 'h-12 rounded-xl border border-emerald-400 bg-emerald-100 px-4 text-sm font-bold text-emerald-900'
-                        : 'h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800'
-                    }
-                    onClick={() => onTagToggle(tag.value)}
-                  >
-                    {tag.label}
-                  </button>
-                )
-              })}
+            <div className="space-y-2">
+              <select
+                className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                value={selectedItem?.id ?? ''}
+                onChange={(event) => setSelectedItemId(event.target.value)}
+              >
+                {selectedSection.items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                  onClick={addMenuItem}
+                >
+                  Add Item
+                </button>
+                <button
+                  type="button"
+                  className="h-12 rounded-xl border border-red-300 bg-red-50 px-4 text-sm font-bold text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={deleteSelectedMenuItem}
+                  disabled={!selectedItem || selectedSection.items.length <= 1}
+                >
+                  Delete Item
+                </button>
+              </div>
+              {selectedSection.items.length <= 1 && (
+                <p className="text-xs text-neutral-600">At least one menu item must remain in a section.</p>
+              )}
             </div>
+          </label>
+
+          {selectedItem && (
+            <>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Name</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  value={selectedItem.name}
+                  onChange={(event) => updateItem((current) => ({ ...current, name: event.target.value }))}
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Description</span>
+                <textarea
+                  className="min-h-28 w-full rounded-xl border border-neutral-300 px-4 py-3 text-base"
+                  value={selectedItem.description}
+                  onChange={(event) => updateItem((current) => ({ ...current, description: event.target.value }))}
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Price (GBP)</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={(selectedItem.pricePence / 100).toFixed(2)}
+                  onChange={(event) => {
+                    const pounds = Number.parseFloat(event.target.value)
+                    const pence = Number.isFinite(pounds) ? Math.round(pounds * 100) : 0
+                    updateItem((current) => ({ ...current, pricePence: pence }))
+                  }}
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Item Image URL</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  placeholder="/screen-logo.png or https://..."
+                  value={selectedItem.imageUrl ?? ''}
+                  onChange={(event) => updateItem((current) => ({
+                    ...current,
+                    imageUrl: event.target.value.trim() === '' ? undefined : event.target.value,
+                  }))}
+                />
+                <input
+                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadSelectedItemImage(event)
+                  }}
+                />
+              </label>
+
+              <fieldset>
+                <legend className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Status Tags</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {TAG_OPTIONS.map((tag) => {
+                    const active = selectedItem.statusTags.includes(tag.value)
+                    return (
+                      <button
+                        key={tag.value}
+                        type="button"
+                        className={
+                          active
+                            ? 'h-12 rounded-xl border border-emerald-400 bg-emerald-100 px-4 text-sm font-bold text-emerald-900'
+                            : 'h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800'
+                        }
+                        onClick={() => onTagToggle(tag.value)}
+                      >
+                        {tag.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
+            </>
+          )}
+
+          <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
+            <legend className="px-1 text-sm font-bold uppercase tracking-wide text-neutral-600">Live Notices</legend>
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice</span>
+              <select
+                className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                value={selectedNotice?.id ?? ''}
+                onChange={(event) => setSelectedNoticeId(event.target.value)}
+              >
+                {board.sidebarItems.map((notice) => (
+                  <option key={notice.id} value={notice.id}>
+                    {notice.headline || 'Untitled notice'}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={addNotice}
+              >
+                Add Notice
+              </button>
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-red-300 bg-red-50 px-4 text-sm font-bold text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={deleteSelectedNotice}
+                disabled={!selectedNotice || board.sidebarItems.length <= 1}
+              >
+                Delete Notice
+              </button>
+            </div>
+
+            {selectedNotice && (
+              <>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice Type</span>
+                  <select
+                    className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                    value={selectedNotice.kind}
+                    onChange={(event) => updateNotice((current) => ({
+                      ...current,
+                      kind: event.target.value === 'ALLERGEN' ? 'ALLERGEN' : 'OFFER',
+                    }))}
+                  >
+                    <option value="OFFER">Offer</option>
+                    <option value="ALLERGEN">Allergen</option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Headline</span>
+                  <input
+                    className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                    value={selectedNotice.headline}
+                    onChange={(event) => updateNotice((current) => ({ ...current, headline: event.target.value }))}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Body</span>
+                  <textarea
+                    className="min-h-24 w-full rounded-xl border border-neutral-300 px-4 py-3 text-base"
+                    value={selectedNotice.body}
+                    onChange={(event) => updateNotice((current) => ({ ...current, body: event.target.value }))}
+                  />
+                </label>
+              </>
+            )}
+
+            {board.sidebarItems.length <= 1 && (
+              <p className="text-xs text-neutral-600">At least one live notice must remain.</p>
+            )}
           </fieldset>
 
           <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">

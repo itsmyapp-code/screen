@@ -144,6 +144,24 @@ export const DashboardPage = () => {
     }))
   }
 
+  const updateItemById = (
+    sectionId: string,
+    itemId: string,
+    updater: (item: SignageBoardConfig['menuSections'][number]['items'][number]) => SignageBoardConfig['menuSections'][number]['items'][number],
+  ): void => {
+    setBoard((prev) => ({
+      ...prev,
+      menuSections: prev.menuSections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              items: section.items.map((item) => (item.id === itemId ? updater(item) : item)),
+            }
+          : section,
+      ),
+    }))
+  }
+
   const onSave = async (event: FormEvent) => {
     event.preventDefault()
     try {
@@ -271,6 +289,29 @@ export const DashboardPage = () => {
       ),
     }))
     setSelectedItemId(nextItems[0]?.id ?? '')
+  }
+
+  const deleteMenuItemById = (itemId: string): void => {
+    if (!selectedSection || selectedSection.items.length <= 1) {
+      return
+    }
+
+    const nextItems = selectedSection.items.filter((item) => item.id !== itemId)
+    setBoard((prev) => ({
+      ...prev,
+      menuSections: prev.menuSections.map((section) =>
+        section.id === selectedSection.id
+          ? {
+              ...section,
+              items: nextItems,
+            }
+          : section,
+      ),
+    }))
+
+    if (selectedItemId === itemId) {
+      setSelectedItemId(nextItems[0]?.id ?? '')
+    }
   }
 
   const updateNotice = (updater: (notice: typeof selectedNotice) => typeof selectedNotice): void => {
@@ -682,6 +723,80 @@ export const DashboardPage = () => {
                   >
                     Delete Item
                   </button>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-2">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-neutral-600">Quick Edit Items In This Section</p>
+                <div className="space-y-2">
+                  {selectedSection.items.map((item) => (
+                    <div key={item.id} className="space-y-2 rounded-lg border border-neutral-200 bg-white p-2">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_120px]">
+                        <input
+                          className="h-10 rounded-lg border border-neutral-300 px-3 text-sm"
+                          value={item.name}
+                          onChange={(event) => {
+                            updateItemById(selectedSection.id, item.id, (current) => ({
+                              ...current,
+                              name: event.target.value,
+                            }))
+                          }}
+                          placeholder="Item name"
+                        />
+                        <input
+                          className="h-10 rounded-lg border border-neutral-300 px-3 text-sm"
+                          value={(item.pricePence / 100).toFixed(2)}
+                          onChange={(event) => {
+                            const cleaned = event.target.value.replace(',', '.').replace(/[^\d.]/g, '')
+                            const pounds = Number.parseFloat(cleaned)
+                            const pence = Number.isFinite(pounds) ? Math.max(0, Math.round(pounds * 100)) : 0
+                            updateItemById(selectedSection.id, item.id, (current) => ({
+                              ...current,
+                              pricePence: pence,
+                            }))
+                          }}
+                          inputMode="decimal"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <textarea
+                        className="min-h-16 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                        value={item.description}
+                        onChange={(event) => {
+                          updateItemById(selectedSection.id, item.id, (current) => ({
+                            ...current,
+                            description: event.target.value,
+                          }))
+                        }}
+                        placeholder="Item description"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          className={
+                            item.id === selectedItemId
+                              ? 'h-9 rounded-lg border border-emerald-300 bg-emerald-50 px-2 text-xs font-bold text-emerald-800'
+                              : 'h-9 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800'
+                          }
+                          onClick={() => {
+                            setSelectedItemId(item.id)
+                          }}
+                        >
+                          {item.id === selectedItemId ? 'Selected' : 'Edit More'}
+                        </button>
+                        <button
+                          type="button"
+                          className="h-9 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
+                          onClick={() => {
+                            deleteMenuItemById(item.id)
+                          }}
+                          disabled={selectedSection.items.length <= 1}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

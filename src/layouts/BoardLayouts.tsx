@@ -47,25 +47,25 @@ const BottomNoticeBanner = ({ board }: LayoutProps) => {
   const active = board.sidebarItems[index]
 
   return (
-    <aside className="h-[170px] border-t-2 border-neutral-700 bg-[linear-gradient(90deg,rgba(15,15,15,0.98),rgba(30,12,18,0.96))] px-8 py-4">
-      <div className="grid h-full grid-cols-[1fr_1.4fr] items-center gap-6">
+    <aside className="h-[118px] border-t-2 border-neutral-700 bg-[linear-gradient(90deg,rgba(15,15,15,0.98),rgba(30,12,18,0.96))] px-6 py-3">
+      <div className="grid h-full grid-cols-[1fr_1.3fr] items-center gap-4">
         <div className="flex items-center gap-4">
           <div className="space-y-1">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-neutral-400">Live Notices</p>
-            <h2 className="text-3xl font-black leading-tight text-neutral-100">{active.headline}</h2>
+            <h2 className="text-2xl font-black leading-tight text-neutral-100">{active.headline}</h2>
           </div>
-          <div className="h-14 w-px bg-neutral-700" />
+          <div className="h-10 w-px bg-neutral-700" />
           <p className="text-sm font-semibold text-neutral-400">Ask staff for allergen matrix and ingredient details.</p>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-neutral-700 bg-neutral-900/65 px-4 py-3">
-          <p className="text-xl font-semibold leading-snug text-neutral-100">{active.body}</p>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-neutral-700 bg-neutral-900/65 px-3 py-2">
+          <p className="text-base font-semibold leading-snug text-neutral-100">{active.body}</p>
 
           {board.sidebarImageUrl && (
             <img
               src={board.sidebarImageUrl}
               alt={`${board.storeName} promo`}
-              className={`h-20 w-36 border border-neutral-600 object-cover ${shapeClass}`}
+              className={`h-14 w-28 border border-neutral-600 object-cover ${shapeClass}`}
               loading="eager"
             />
           )}
@@ -121,8 +121,8 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <section className="flex flex-1 flex-col px-8 py-8 pb-4">
-        <header className="mb-6 flex items-end justify-between">
+      <section className="flex min-h-0 flex-1 flex-col px-6 py-5 pb-3">
+        <header className="mb-4 flex items-end justify-between">
           <div>
             <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName}</h1>
             <p className={accent.strapline}>Freshly Fried Every Day</p>
@@ -140,7 +140,7 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
           )}
         </header>
 
-        <div className="grid flex-1 grid-cols-6 gap-4 auto-rows-fr">
+        <div className="grid min-h-0 flex-1 grid-cols-6 gap-4 auto-rows-fr">
           {board.menuSections.slice(0, 4).map((section, index) => (
             <section
               key={section.id}
@@ -153,7 +153,7 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
               <h3 className={accent.sectionTitleSm}>
                 {section.title}
               </h3>
-              <div className="space-y-3">
+              <div className="max-h-full space-y-3 overflow-y-auto pr-1">
                 {section.items.map((item) => (
                   <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
                 ))}
@@ -173,7 +173,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <section className="flex-1 px-10 py-8 pb-4">
+      <section className="min-h-0 flex-1 px-8 py-6 pb-3">
         <div className="flex items-center justify-between gap-6">
           <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName} Drinks</h1>
           {board.heroImageUrl && (
@@ -185,7 +185,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
             />
           )}
         </div>
-        <div className="mt-6 grid grid-cols-4 gap-5 auto-rows-fr">
+        <div className="mt-5 grid min-h-0 grid-cols-4 gap-5 auto-rows-fr">
           {board.menuSections.map((section, index) => (
             <section
               key={section.id}
@@ -198,7 +198,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
               <h3 className={accent.sectionTitleLg}>
                 {section.title}
               </h3>
-              <div className="space-y-3">
+              <div className="max-h-full space-y-3 overflow-y-auto pr-1">
                 {section.items.map((item) => (
                   <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
                 ))}
@@ -223,7 +223,7 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex flex-1">
+      <div className="flex min-h-0 flex-1">
       <section className="relative w-1/2 overflow-hidden border-r border-neutral-700 bg-[radial-gradient(circle_at_30%_30%,rgba(250,204,21,0.22),rgba(10,10,10,0.95))]">
         {board.heroImageUrl && (
           <img
@@ -243,9 +243,9 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
           </div>
         </div>
       </section>
-      <section className="w-1/2 px-8 py-8">
+      <section className="flex min-h-0 w-1/2 flex-col px-8 py-6">
         <h1 className="text-5xl font-black uppercase tracking-[0.12em] text-neutral-50">Sweet Finish Menu</h1>
-        <div className="mt-6 space-y-4">
+        <div className="mt-5 flex-1 space-y-3 overflow-y-auto pr-1">
           {dessertItems.map((item) => (
             <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
           ))}

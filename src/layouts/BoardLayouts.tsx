@@ -3,6 +3,8 @@ import { formatPriceGBP } from '../lib/format'
 import { getAccentClasses } from '../lib/branding'
 import type { SignageBoardConfig } from '../types/signage'
 import { StatusTagBadge } from '../ui/StatusTagBadge'
+import { PoweredByStrip } from '../ui/PoweredByStrip'
+import { DisplayUpdatedBadge } from '../ui/DisplayUpdatedBadge'
 
 interface LayoutProps {
   board: SignageBoardConfig
@@ -62,8 +64,9 @@ const BottomNoticeBanner = ({ board }: LayoutProps) => {
   const active = board.sidebarItems[index]
 
   return (
-    <aside className="h-[118px] border-t-2 border-neutral-700 bg-[linear-gradient(90deg,rgba(15,15,15,0.98),rgba(30,12,18,0.96))] px-6 py-3">
-      <div className="grid h-full grid-cols-[1fr_1.3fr] items-center gap-4">
+    <aside className="h-[136px] border-t-2 border-neutral-700 bg-[linear-gradient(90deg,rgba(15,15,15,0.98),rgba(30,12,18,0.96))] px-4 py-3">
+      <div className="grid h-full grid-rows-[1fr_auto] gap-2">
+        <div className="grid grid-cols-[1fr_1.3fr] items-center gap-4 overflow-hidden">
         <div className="flex items-center gap-4">
           <div className="space-y-1">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-neutral-400">Live Notices</p>
@@ -82,6 +85,16 @@ const BottomNoticeBanner = ({ board }: LayoutProps) => {
               loading="eager"
             />
           )}
+        </div>
+        </div>
+
+        <div className="flex items-end justify-between gap-3 overflow-hidden">
+          <PoweredByStrip
+            tone="dark"
+            compact
+            className="pointer-events-none max-w-[320px]"
+          />
+          <DisplayUpdatedBadge />
         </div>
       </div>
     </aside>

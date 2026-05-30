@@ -9,8 +9,6 @@ import {
   ThreeColumnLayout,
   TwoColumnGridLayout,
 } from '../layouts/BoardLayouts'
-import { DisplayUpdatedBadge } from '../ui/DisplayUpdatedBadge'
-import { PoweredByStrip } from '../ui/PoweredByStrip'
 import type { PlaybackMode } from '../types/signage'
 
 const MediaFrame = ({
@@ -154,12 +152,6 @@ export const DisplayPage = () => {
               opacity: board.displayTintOpacity ?? 0,
             }}
           />
-          <PoweredByStrip
-            tone="dark"
-            compact
-            className="pointer-events-none absolute bottom-2 left-2 max-w-[290px]"
-          />
-          <DisplayUpdatedBadge />
         </div>
       </div>
     </main>

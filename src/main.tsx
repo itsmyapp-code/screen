@@ -12,6 +12,9 @@ const AuthPage = lazy(async () => import('./pages/AuthPage').then((module) => ({
 const DashboardPage = lazy(async () =>
   import('./pages/DashboardPage').then((module) => ({ default: module.DashboardPage })),
 )
+const DisplaySettingsPage = lazy(async () =>
+  import('./pages/DisplaySettingsPage').then((module) => ({ default: module.DisplaySettingsPage })),
+)
 const DisplayPage = lazy(async () => import('./pages/DisplayPage').then((module) => ({ default: module.DisplayPage })))
 
 const withFallback = (element: ReactNode) => (
@@ -36,6 +39,20 @@ const DashboardRoute = () => {
   return <DashboardPage />
 }
 
+const DisplaySettingsRoute = () => {
+  const { user, loading } = useAuthUser()
+
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center bg-neutral-100 text-neutral-700">Checking access...</div>
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />
+  }
+
+  return <DisplaySettingsPage />
+}
+
 const AuthRoute = () => {
   const { user, loading } = useAuthUser()
 
@@ -54,6 +71,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/auth" replace /> },
   { path: '/auth', element: withFallback(<AuthRoute />) },
   { path: '/dashboard', element: withFallback(<DashboardRoute />) },
+  { path: '/dashboard/settings', element: withFallback(<DisplaySettingsRoute />) },
   { path: '/display/:boardId', element: withFallback(<DisplayPage />) },
   {
     path: '/terms',

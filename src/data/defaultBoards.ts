@@ -10,6 +10,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     currencySymbol: 'GBP',
     accentProfile: 'AMBER',
     customBrandHex: '#f59e0b',
+    displayTintHex: '#000000',
+    displayTintOpacity: 0,
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [
@@ -133,6 +135,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     menuHoldSeconds: 20,
     currencySymbol: 'GBP',
     accentProfile: 'CYAN',
+    displayTintHex: '#000000',
+    displayTintOpacity: 0,
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [
@@ -179,6 +183,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     menuHoldSeconds: 20,
     currencySymbol: 'GBP',
     accentProfile: 'ROSE',
+    displayTintHex: '#000000',
+    displayTintOpacity: 0,
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [

@@ -132,10 +132,17 @@ export const DisplayPage = () => {
       >
         <div className="relative h-[1080px] w-[1920px] overflow-hidden bg-neutral-950 text-neutral-50">
           {content}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundColor: board.displayTintHex ?? '#000000',
+              opacity: board.displayTintOpacity ?? 0,
+            }}
+          />
           <PoweredByStrip
             tone="dark"
             compact
-            className="pointer-events-none absolute bottom-5 left-5 max-w-[620px]"
+            className="pointer-events-none absolute bottom-2 left-2 max-w-[290px]"
           />
           <ConnectivityBadge online={online} />
         </div>

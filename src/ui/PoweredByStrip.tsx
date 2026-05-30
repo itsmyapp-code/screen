@@ -27,13 +27,13 @@ const DARK_BASE =
 export const PoweredByStrip = ({ tone = 'light', compact = false, className = '' }: Props) => {
   const baseClasses = tone === 'dark' ? DARK_BASE : LIGHT_BASE
   const logoFrame = tone === 'dark'
-    ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/10 p-1'
-    : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-neutral-100 p-1'
+    ? 'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/10 p-0.5'
+    : 'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 p-0.5'
   const logoImage = 'h-full w-full object-contain'
 
   if (compact) {
     return (
-      <div className={`${baseClasses} ${className} flex items-center gap-3 px-3 py-2`}>
+      <div className={`${baseClasses} ${className} flex items-center gap-2 px-2 py-1.5`}>
         <div className={logoFrame}>
           <img
             src="/itsmyapp_logo.png"
@@ -43,7 +43,7 @@ export const PoweredByStrip = ({ tone = 'light', compact = false, className = ''
             onError={logoErrorFallback}
           />
         </div>
-        <div className="min-w-0 text-[11px] leading-tight sm:text-xs">
+        <div className="min-w-0 text-[9px] leading-tight">
           <p className="font-bold">Powered by Its My Screen</p>
           <p className="truncate">Developed by itsmyapp.co.uk | Copyright 2026</p>
           <p className="truncate">hello@itsmyapp.co.uk</p>

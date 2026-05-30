@@ -22,6 +22,8 @@ const normalizeBoard = (input: SignageBoardConfig): SignageBoardConfig => {
     ...input,
     playbackMode: input.playbackMode ?? 'MENU_ONLY',
     menuHoldSeconds: input.menuHoldSeconds ?? 20,
+    displayTintHex: input.displayTintHex ?? '#000000',
+    displayTintOpacity: input.displayTintOpacity ?? 0,
     mediaPlaylist: input.mediaPlaylist ?? [],
   }
 }

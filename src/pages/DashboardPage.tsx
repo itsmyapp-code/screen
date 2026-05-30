@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { defaultBoardId, defaultBoards } from '../data/defaultBoards'
 import { useAuthUser } from '../hooks/useAuthUser'
@@ -20,6 +20,7 @@ const TAG_OPTIONS: Array<{ label: string; value: StatusTag }> = [
 ]
 
 export const DashboardPage = () => {
+  const navigate = useNavigate()
   const { user } = useAuthUser()
   const [boardId, setBoardId] = useState<string | null>(null)
   const [loadingBoard, setLoadingBoard] = useState(true)
@@ -335,6 +336,15 @@ export const DashboardPage = () => {
         {menuOpen && (
           <div className="mb-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={() => {
+                  void navigate('/dashboard/settings')
+                }}
+              >
+                Display Settings
+              </button>
               <button
                 type="button"
                 className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"

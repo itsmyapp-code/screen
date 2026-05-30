@@ -45,6 +45,8 @@ export interface SignageBoardConfig {
   currencySymbol: 'GBP'
   accentProfile: AccentProfile
   customBrandHex?: string
+  displayTintHex?: string
+  displayTintOpacity?: number
   heroImageUrl?: string
   sidebarImageUrl?: string
   menuSections: MenuSection[]

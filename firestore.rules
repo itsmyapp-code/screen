@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function ownsBoard(boardId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.boardId == boardId;
+    }
+
+    match /users/{uid} {
+      allow create: if isSelf(uid)
+        && request.resource.data.boardId is string
+        && request.resource.data.boardId.size() > 0;
+      allow read, update, delete: if isSelf(uid);
+    }
+
+    match /boards/{boardId} {
+      allow read, write: if ownsBoard(boardId);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

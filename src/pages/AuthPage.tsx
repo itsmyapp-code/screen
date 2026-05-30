@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../lib/firebase'
 import { ensureUserBoard } from '../lib/userBoard'
 import { useAuthUser } from '../hooks/useAuthUser'
+import { PoweredByStrip } from '../ui/PoweredByStrip'
 
 type AuthMode = 'LOGIN' | 'SIGNUP'
 
@@ -117,6 +118,8 @@ export const AuthPage = () => {
             {submitting ? 'Please wait...' : mode === 'LOGIN' ? 'Login' : 'Create account'}
           </button>
         </form>
+
+        <PoweredByStrip className="mt-4" />
       </section>
     </main>
   )

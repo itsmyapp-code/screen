@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { PoweredByStrip } from '../ui/PoweredByStrip'
 
 type LegalKind = 'terms' | 'privacy' | 'cookies' | 'accessibility'
 
@@ -46,6 +47,7 @@ export const LegalPage = ({ title, kind }: Props) => {
         <Link to="/dashboard" className="mt-6 inline-flex h-12 items-center rounded-xl bg-neutral-900 px-5 font-bold text-white">
           Back to Dashboard
         </Link>
+        <PoweredByStrip className="mt-4" />
       </article>
     </main>
   )

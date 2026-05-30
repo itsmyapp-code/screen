@@ -10,6 +10,7 @@ import { pushBoardUpdate } from '../lib/pushBoardUpdate'
 import { formatDateUK } from '../lib/format'
 import { ensureUserBoard } from '../lib/userBoard'
 import type { MediaAsset, PlaybackMode, SignageBoardConfig, StatusTag } from '../types/signage'
+import { PoweredByStrip } from '../ui/PoweredByStrip'
 
 const TAG_OPTIONS: Array<{ label: string; value: StatusTag }> = [
   { label: 'SOLD OUT', value: 'SOLD_OUT' },
@@ -465,6 +466,8 @@ export const DashboardPage = () => {
           <Link className="underline" to="/cookies">Cookies</Link>
           <Link className="underline" to="/accessibility">Accessibility</Link>
         </footer>
+
+        <PoweredByStrip className="mt-4" />
       </section>
     </main>
   )

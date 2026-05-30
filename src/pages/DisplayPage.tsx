@@ -10,6 +10,7 @@ import {
   TwoColumnGridLayout,
 } from '../layouts/BoardLayouts'
 import { ConnectivityBadge } from '../ui/ConnectivityBadge'
+import { PoweredByStrip } from '../ui/PoweredByStrip'
 import type { PlaybackMode } from '../types/signage'
 
 const MediaFrame = ({
@@ -131,6 +132,11 @@ export const DisplayPage = () => {
       >
         <div className="relative h-[1080px] w-[1920px] overflow-hidden bg-neutral-950 text-neutral-50">
           {content}
+          <PoweredByStrip
+            tone="dark"
+            compact
+            className="pointer-events-none absolute bottom-5 left-5 max-w-[620px]"
+          />
           <ConnectivityBadge online={online} />
         </div>
       </div>

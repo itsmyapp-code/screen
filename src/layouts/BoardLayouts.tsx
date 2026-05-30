@@ -175,7 +175,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
     <div className="flex h-full w-full flex-col">
       <section className="min-h-0 flex-1 px-8 py-6 pb-3">
         <div className="flex items-center justify-between gap-6">
-          <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName} Drinks</h1>
+          <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName}</h1>
           {board.heroImageUrl && (
             <img
               src={board.heroImageUrl}
@@ -215,6 +215,8 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
 export const HalfImageLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
   const shapeClass = imageShapeClass(board)
+  const leadSection = board.menuSections[0]
+  const leadItem = leadSection?.items[0]
 
   const dessertItems = useMemo(
     () => board.menuSections.flatMap((section) => section.items),
@@ -235,16 +237,18 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
         )}
         <div className="absolute inset-0 bg-gradient-to-tr from-neutral-950/80 via-neutral-900/45 to-transparent" />
         <div className="absolute inset-10 rounded-[36px] border border-neutral-400/30 bg-[linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0))] p-8 backdrop-blur-sm">
-          <h2 className="text-6xl font-black uppercase tracking-[0.1em] text-neutral-50">Dessert Spotlight</h2>
-          <p className="mt-4 text-3xl text-neutral-100">Warm puddings, soft serve and seaside classics.</p>
+          <h2 className="text-6xl font-black uppercase tracking-[0.1em] text-neutral-50">{leadSection?.title ?? board.storeName}</h2>
+          <p className="mt-4 text-3xl text-neutral-100">{board.queueHeaderText?.trim() || 'Featured menu highlights'}</p>
           <div className={accent.spotlight}>
-            <p className="text-2xl font-bold text-neutral-50">Tonight's Highlight</p>
-            <p className={accent.spotlightHeadline}>Jam Roly-Poly & Custard £4.50</p>
+            <p className="text-2xl font-bold text-neutral-50">Featured Item</p>
+            <p className={accent.spotlightHeadline}>
+              {leadItem ? `${leadItem.name} ${formatPriceGBP(leadItem.pricePence)}` : 'Add an item in Dashboard'}
+            </p>
           </div>
         </div>
       </section>
       <section className="flex min-h-0 w-1/2 flex-col px-8 py-6">
-        <h1 className="text-5xl font-black uppercase tracking-[0.12em] text-neutral-50">Sweet Finish Menu</h1>
+        <h1 className="text-5xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName}</h1>
         <div className="mt-5 flex-1 space-y-3 overflow-y-auto pr-1">
           {dessertItems.map((item) => (
             <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />

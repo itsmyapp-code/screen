@@ -1,0 +1,58 @@
+import type { User } from 'firebase/auth'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { defaultBoardId, defaultBoards } from '../data/defaultBoards'
+import { db } from './firebase'
+import type { SignageBoardConfig } from '../types/signage'
+
+interface UserProfile {
+  boardId: string
+  email: string | null
+  createdAt: ReturnType<typeof serverTimestamp>
+}
+
+const cloneDefaultBoard = (): SignageBoardConfig => {
+  return JSON.parse(JSON.stringify(defaultBoards[defaultBoardId])) as SignageBoardConfig
+}
+
+const makeBoardId = (uid: string): string => {
+  return `board-${uid.slice(0, 10)}`
+}
+
+export const ensureUserBoard = async (user: User): Promise<string> => {
+  const boardId = makeBoardId(user.uid)
+
+  if (!db) {
+    return boardId
+  }
+
+  const profileRef = doc(db, 'users', user.uid)
+  const profileSnapshot = await getDoc(profileRef)
+
+  if (!profileSnapshot.exists()) {
+    const profile: UserProfile = {
+      boardId,
+      email: user.email,
+      createdAt: serverTimestamp(),
+    }
+
+    await setDoc(profileRef, profile)
+  }
+
+  const boardRef = doc(db, 'boards', boardId)
+  const boardSnapshot = await getDoc(boardRef)
+
+  if (!boardSnapshot.exists()) {
+    const seed = cloneDefaultBoard()
+    const storeName = user.email ? `${user.email.split('@')[0]}'s Board` : 'Merchant Board'
+
+    const seededBoard: SignageBoardConfig = {
+      ...seed,
+      boardId,
+      storeName,
+    }
+
+    await setDoc(boardRef, seededBoard)
+  }
+
+  return boardId
+}

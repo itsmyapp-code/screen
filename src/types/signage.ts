@@ -1,4 +1,6 @@
 export type LayoutStyle = 'THREE_COLUMN' | 'TWO_COLUMN_GRID' | 'HALF_IMAGE'
+export type PlaybackMode = 'MENU_ONLY' | 'MIXED' | 'MEDIA_ONLY'
+export type MediaAssetType = 'IMAGE' | 'VIDEO'
 
 export type StatusTag = 'SOLD_OUT' | 'HOT_DEAL' | 'CONTAINS_GLUTEN' | 'CONTAINS_FISH'
 
@@ -26,10 +28,19 @@ export interface MarketingPanelItem {
   body: string
 }
 
+export interface MediaAsset {
+  id: string
+  type: MediaAssetType
+  url: string
+  durationSeconds: number
+}
+
 export interface SignageBoardConfig {
   boardId: string
   storeName: string
   layoutStyle: LayoutStyle
+  playbackMode: PlaybackMode
+  menuHoldSeconds: number
   currencySymbol: 'GBP'
   accentProfile: AccentProfile
   customBrandHex?: string
@@ -37,4 +48,5 @@ export interface SignageBoardConfig {
   sidebarImageUrl?: string
   menuSections: MenuSection[]
   sidebarItems: MarketingPanelItem[]
+  mediaPlaylist: MediaAsset[]
 }

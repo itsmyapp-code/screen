@@ -17,9 +17,19 @@ const getFallbackBoard = (boardId: string): SignageBoardConfig => {
   return defaultBoards[boardId] ?? defaultBoards[defaultBoardId]
 }
 
+const normalizeBoard = (input: SignageBoardConfig): SignageBoardConfig => {
+  return {
+    ...input,
+    playbackMode: input.playbackMode ?? 'MENU_ONLY',
+    menuHoldSeconds: input.menuHoldSeconds ?? 20,
+    mediaPlaylist: input.mediaPlaylist ?? [],
+  }
+}
+
 export const useLiveMenu = (boardId: string): LiveMenuState => {
   const [board, setBoard] = useState<SignageBoardConfig>(() => {
-    return loadBoardFromLocal(boardId) ?? getFallbackBoard(boardId)
+    const local = loadBoardFromLocal(boardId)
+    return local ? normalizeBoard(local) : getFallbackBoard(boardId)
   })
   const [source, setSource] = useState<SourceType>('DEFAULTS')
   const [online, setOnline] = useState<boolean>(navigator.onLine)
@@ -27,7 +37,7 @@ export const useLiveMenu = (boardId: string): LiveMenuState => {
   useEffect(() => {
     const local = loadBoardFromLocal(boardId)
     if (local) {
-      setBoard(local)
+      setBoard(normalizeBoard(local))
       setSource('LOCAL_CACHE')
       return
     }
@@ -40,7 +50,7 @@ export const useLiveMenu = (boardId: string): LiveMenuState => {
     const syncFromLocal = (): void => {
       const local = loadBoardFromLocal(boardId)
       if (local) {
-        setBoard(local)
+        setBoard(normalizeBoard(local))
         setSource('LOCAL_CACHE')
       }
     }
@@ -87,7 +97,7 @@ export const useLiveMenu = (boardId: string): LiveMenuState => {
           return
         }
 
-        const next = snapshot.data() as SignageBoardConfig
+        const next = normalizeBoard(snapshot.data() as SignageBoardConfig)
         setBoard(next)
         saveBoardToLocal(next)
         setSource('FIRESTORE')
@@ -95,7 +105,7 @@ export const useLiveMenu = (boardId: string): LiveMenuState => {
       () => {
         const local = loadBoardFromLocal(boardId)
         if (local) {
-          setBoard(local)
+          setBoard(normalizeBoard(local))
           setSource('LOCAL_CACHE')
         }
       },

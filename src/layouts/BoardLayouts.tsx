@@ -185,20 +185,19 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
           )}
         </header>
 
-        <div className="grid min-h-0 flex-1 grid-cols-6 gap-4 auto-rows-fr">
+        <div className="grid min-h-0 flex-1 grid-cols-3 gap-4 auto-rows-fr">
           {currentSections.map((section, index) => (
             <section
               key={section.id}
-              className={
-                index === 0
-                  ? 'col-span-4 row-span-2 space-y-4 rounded-3xl border border-neutral-500/80 bg-[linear-gradient(145deg,rgba(23,23,23,0.88),rgba(10,10,10,0.96))] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.35)] overflow-hidden'
-                  : 'col-span-2 space-y-4 rounded-3xl border border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-4 shadow-[0_8px_26px_rgba(0,0,0,0.28)] overflow-hidden'
-              }
+              className={`flex min-h-0 flex-col space-y-4 overflow-hidden rounded-3xl border ${index === 0
+                ? 'border-neutral-500/80 bg-[linear-gradient(145deg,rgba(23,23,23,0.88),rgba(10,10,10,0.96))] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
+                : 'border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-5 shadow-[0_8px_26px_rgba(0,0,0,0.28)]'
+              }`}
             >
               <h3 className={accent.sectionTitleSm}>
                 {section.title}
               </h3>
-              <div className="max-h-full space-y-3 overflow-y-auto pr-1">
+              <div className="flex min-h-0 flex-1 flex-col space-y-3">
                 {section.items.map((item) => (
                   <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
                 ))}

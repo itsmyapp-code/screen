@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { defaultBoardId, defaultBoards } from '../data/defaultBoards'
@@ -24,6 +24,8 @@ export const DashboardPage = () => {
   const [boardId, setBoardId] = useState<string | null>(null)
   const [loadingBoard, setLoadingBoard] = useState(true)
   const [setupError, setSetupError] = useState<string>('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [board, setBoard] = useState<SignageBoardConfig>(defaultBoards[defaultBoardId])
   const [selectedSectionId, setSelectedSectionId] = useState(board.menuSections[0].id)
   const [selectedItemId, setSelectedItemId] = useState(board.menuSections[0].items[0].id)
@@ -182,6 +184,119 @@ export const DashboardPage = () => {
     await signOut(auth)
   }
 
+  const fileToDataUrl = async (file: File): Promise<string> => {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result)
+          return
+        }
+
+        reject(new Error('Image read failed.'))
+      }
+      reader.onerror = () => reject(new Error('Image read failed.'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const validateImageFile = (file: File): string | null => {
+    if (!file.type.startsWith('image/')) {
+      return 'Please choose an image file.'
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      return 'Image is too large. Keep it under 2MB for reliable sync.'
+    }
+
+    return null
+  }
+
+  const uploadBoardImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    field: 'heroImageUrl' | 'sidebarImageUrl',
+  ): Promise<void> => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setSetupError(validationError)
+      event.target.value = ''
+      return
+    }
+
+    try {
+      const url = await fileToDataUrl(file)
+      setBoard((prev) => ({
+        ...prev,
+        [field]: url,
+      }))
+      setSetupError('')
+    } catch (reason) {
+      setSetupError(reason instanceof Error ? reason.message : 'Unable to upload image.')
+    } finally {
+      event.target.value = ''
+    }
+  }
+
+  const uploadSelectedItemImage = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setSetupError(validationError)
+      event.target.value = ''
+      return
+    }
+
+    try {
+      const url = await fileToDataUrl(file)
+      updateItem((current) => ({ ...current, imageUrl: url }))
+      setSetupError('')
+    } catch (reason) {
+      setSetupError(reason instanceof Error ? reason.message : 'Unable to upload image.')
+    } finally {
+      event.target.value = ''
+    }
+  }
+
+  const uploadMediaAssetImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    assetId: string,
+  ): Promise<void> => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setSetupError(validationError)
+      event.target.value = ''
+      return
+    }
+
+    try {
+      const url = await fileToDataUrl(file)
+      updateMediaAsset(assetId, (asset) => ({
+        ...asset,
+        type: 'IMAGE',
+        url,
+      }))
+      setSetupError('')
+    } catch (reason) {
+      setSetupError(reason instanceof Error ? reason.message : 'Unable to upload media image.')
+    } finally {
+      event.target.value = ''
+    }
+  }
+
   if (loadingBoard) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-100 text-neutral-700">
@@ -217,18 +332,90 @@ export const DashboardPage = () => {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#fef3c7_0%,#f3f4f6_55%,#e5e7eb_100%)] px-4 py-6 text-neutral-900 sm:px-6">
       <section className="mx-auto w-full max-w-3xl rounded-3xl border border-neutral-200 bg-white/90 p-4 shadow-xl shadow-neutral-900/10 sm:p-6">
+        {menuOpen && (
+          <div className="mb-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={() => {
+                  setHelpOpen((current) => !current)
+                }}
+              >
+                {helpOpen ? 'Hide Help' : 'Open Help'}
+              </button>
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={() => {
+                  setMenuOpen(false)
+                }}
+              >
+                Close Menu
+              </button>
+            </div>
+
+            {helpOpen && (
+              <article className="mt-3 space-y-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-800">
+                <h2 className="text-base font-black text-neutral-900">Help: Running Your Screen</h2>
+                <p className="font-semibold">Quick start</p>
+                <p>1. Choose Menu section and item, edit name/price/tags, then tap Push Update to Display.</p>
+                <p>2. Open Your Unique Display URL on the TV browser.</p>
+                <p>3. For a media loop-only screen, use the Media-only URL.</p>
+                <p className="font-semibold">How customers upload images</p>
+                <p>1. Use Upload image buttons next to Header Image, Sidebar Image, and Menu Item Image.</p>
+                <p>2. For Media Playlist image slides, use Upload image in each media card.</p>
+                <p>3. Keep images under 2MB for faster sync and stable playback.</p>
+                <p className="font-semibold">Videos</p>
+                <p>1. Select Video in Media Playlist.</p>
+                <p>2. Paste a direct video URL in the media URL field.</p>
+                <p>3. Set duration and push update.</p>
+              </article>
+            )}
+          </div>
+        )}
+
         <header className="space-y-3">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-neutral-500">Merchant Remote</p>
-            <button
-              type="button"
-              className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
-              onClick={() => {
-                void onSignOut()
-              }}
-            >
-              Sign out
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="flex h-12 w-12 items-center justify-center rounded-xl border border-neutral-300 bg-white"
+                aria-label="Open dashboard menu"
+                onClick={() => {
+                  setMenuOpen((current) => !current)
+                }}
+              >
+                <span className="space-y-1.5">
+                  <span className="block h-0.5 w-5 bg-neutral-900" />
+                  <span className="block h-0.5 w-5 bg-neutral-900" />
+                  <span className="block h-0.5 w-5 bg-neutral-900" />
+                </span>
+              </button>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-neutral-500">Merchant Remote</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={() => {
+                  setHelpOpen(true)
+                  setMenuOpen(true)
+                }}
+              >
+                Help
+              </button>
+              <button
+                type="button"
+                className="h-12 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-bold text-neutral-800"
+                onClick={() => {
+                  void onSignOut()
+                }}
+              >
+                Sign out
+              </button>
+            </div>
           </div>
           <h1 className="text-3xl font-black text-neutral-900">Digital Signage Dashboard</h1>
           <p className="text-base text-neutral-700">
@@ -281,6 +468,14 @@ export const DashboardPage = () => {
               value={board.heroImageUrl ?? ''}
               onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
             />
+            <input
+              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                void uploadBoardImage(event, 'heroImageUrl')
+              }}
+            />
           </label>
 
           <label className="block">
@@ -290,6 +485,14 @@ export const DashboardPage = () => {
               placeholder="/screen-logo.png or https://..."
               value={board.sidebarImageUrl ?? ''}
               onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
+            />
+            <input
+              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                void uploadBoardImage(event, 'sidebarImageUrl')
+              }}
             />
           </label>
 
@@ -376,6 +579,14 @@ export const DashboardPage = () => {
                 imageUrl: event.target.value.trim() === '' ? undefined : event.target.value,
               }))}
             />
+            <input
+              className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                void uploadSelectedItemImage(event)
+              }}
+            />
           </label>
 
           <fieldset>
@@ -439,6 +650,15 @@ export const DashboardPage = () => {
                     ...current,
                     url: event.target.value,
                   }))}
+                />
+
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadMediaAssetImage(event, asset.id)
+                  }}
                 />
 
                 <button

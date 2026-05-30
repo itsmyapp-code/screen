@@ -340,7 +340,7 @@ export const DashboardPage = () => {
         {
           id: nextId,
           kind: 'OFFER',
-          headline: 'New notice',
+          headline: 'Notice',
           body: '',
         },
       ],
@@ -985,22 +985,7 @@ export const DashboardPage = () => {
             {selectedNotice && (
               <>
                 <label className="block">
-                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice Type</span>
-                  <select
-                    className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
-                    value={selectedNotice.kind}
-                    onChange={(event) => updateNotice((current) => ({
-                      ...current,
-                      kind: event.target.value === 'ALLERGEN' ? 'ALLERGEN' : 'OFFER',
-                    }))}
-                  >
-                    <option value="OFFER">Offer</option>
-                    <option value="ALLERGEN">Allergen</option>
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Headline</span>
+                    <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice</span>
                   <input
                     className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
                     value={selectedNotice.headline}

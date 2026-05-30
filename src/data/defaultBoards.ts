@@ -110,8 +110,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
       {
         id: 'allergen-1',
         kind: 'ALLERGEN',
-        headline: 'Allergen Notice',
-        body: 'Frying oil may contain fish, gluten and milk traces.',
+        headline: 'Notice',
+        body: 'Please ask staff about allergens and ingredients.',
       },
       {
         id: 'offer-2',
@@ -122,7 +122,7 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     ],
     mediaPlaylist: [
       {
-        id: 'media-main-1',
+        id: 'media-1',
         type: 'IMAGE',
         url: '/screen-logo.png',
         durationSeconds: 12,

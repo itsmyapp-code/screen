@@ -63,6 +63,13 @@ export const DashboardPage = () => {
     })
   }
 
+  const updateBoardImage = (field: 'heroImageUrl' | 'sidebarImageUrl', value: string): void => {
+    setBoard((prev) => ({
+      ...prev,
+      [field]: value.trim() === '' ? undefined : value,
+    }))
+  }
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#fef3c7_0%,#f3f4f6_55%,#e5e7eb_100%)] px-4 py-6 text-neutral-900 sm:px-6">
       <section className="mx-auto w-full max-w-3xl rounded-3xl border border-neutral-200 bg-white/90 p-4 shadow-xl shadow-neutral-900/10 sm:p-6">
@@ -80,6 +87,26 @@ export const DashboardPage = () => {
         </header>
 
         <form className="mt-6 space-y-4" onSubmit={onSave}>
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Header Image URL</span>
+            <input
+              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+              placeholder="/screen-logo.png or https://..."
+              value={board.heroImageUrl ?? ''}
+              onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Sidebar Image URL</span>
+            <input
+              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+              placeholder="/screen-logo.png or https://..."
+              value={board.sidebarImageUrl ?? ''}
+              onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
+            />
+          </label>
+
           <label className="block">
             <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Section</span>
             <select
@@ -149,6 +176,19 @@ export const DashboardPage = () => {
                 const pence = Number.isFinite(pounds) ? Math.round(pounds * 100) : 0
                 updateItem((current) => ({ ...current, pricePence: pence }))
               }}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Item Image URL</span>
+            <input
+              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+              placeholder="/screen-logo.png or https://..."
+              value={selectedItem.imageUrl ?? ''}
+              onChange={(event) => updateItem((current) => ({
+                ...current,
+                imageUrl: event.target.value.trim() === '' ? undefined : event.target.value,
+              }))}
             />
           </label>
 

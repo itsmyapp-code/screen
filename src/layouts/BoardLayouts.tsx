@@ -27,6 +27,14 @@ const SidebarPanel = ({ board }: LayoutProps) => {
   return (
     <aside className={accent.sidebar}>
       <div className="space-y-4">
+        {board.sidebarImageUrl && (
+          <img
+            src={board.sidebarImageUrl}
+            alt={`${board.storeName} promo`}
+            className="h-36 w-full rounded-2xl border border-neutral-600 object-cover"
+            loading="eager"
+          />
+        )}
         <p className="text-xl font-bold uppercase tracking-[0.16em] text-neutral-300">Live Notices</p>
         <h2 className={accent.sidebarHeadline}>{active.headline}</h2>
         <p className="text-3xl leading-relaxed text-neutral-100">{active.body}</p>
@@ -43,16 +51,29 @@ const MenuItemLine = ({
   description,
   pricePence,
   statusTags,
+  imageUrl,
 }: SignageBoardConfig['menuSections'][number]['items'][number]) => {
   return (
     <article className="rounded-xl border border-neutral-700 bg-neutral-900/80 p-4">
-      <div className="flex items-baseline justify-between gap-4">
-        <h4 className="text-2xl font-extrabold leading-tight text-neutral-50">{name}</h4>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={name}
+              className="h-16 w-16 shrink-0 rounded-xl border border-neutral-600 object-cover"
+              loading="lazy"
+            />
+          )}
+          <div className="min-w-0">
+            <h4 className="text-2xl font-extrabold leading-tight text-neutral-50">{name}</h4>
+            <p className="mt-1 text-lg text-neutral-300">{description}</p>
+          </div>
+        </div>
         <p className="min-w-[130px] text-right text-3xl font-black tabular-nums text-neutral-50">
           {formatPriceGBP(pricePence)}
         </p>
       </div>
-      <p className="mt-1 text-lg text-neutral-300">{description}</p>
       {statusTags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {statusTags.map((tag) => (
@@ -75,6 +96,14 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
             <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName}</h1>
             <p className={accent.strapline}>Freshly Fried Every Day</p>
           </div>
+          {board.heroImageUrl && (
+            <img
+              src={board.heroImageUrl}
+              alt={`${board.storeName} logo`}
+              className="h-24 w-24 rounded-2xl border border-neutral-600 object-cover"
+              loading="eager"
+            />
+          )}
           <p className="text-xl font-semibold uppercase tracking-[0.14em] text-neutral-300">Queue Friendly Display</p>
         </header>
 
@@ -104,7 +133,17 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
   return (
     <div className="flex h-full w-full">
       <section className="w-2/3 px-10 py-10">
-        <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName} Drinks</h1>
+        <div className="flex items-center justify-between gap-6">
+          <h1 className="text-6xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName} Drinks</h1>
+          {board.heroImageUrl && (
+            <img
+              src={board.heroImageUrl}
+              alt={`${board.storeName} logo`}
+              className="h-24 w-24 rounded-2xl border border-neutral-600 object-cover"
+              loading="eager"
+            />
+          )}
+        </div>
         <div className="mt-6 grid grid-cols-2 gap-5">
           {board.menuSections.map((section) => (
             <section key={section.id} className="rounded-2xl border border-neutral-700 bg-neutral-900/70 p-4">
@@ -136,6 +175,15 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
   return (
     <div className="flex h-full w-full">
       <section className="relative w-1/2 overflow-hidden border-r border-neutral-700 bg-[radial-gradient(circle_at_30%_30%,rgba(250,204,21,0.22),rgba(10,10,10,0.95))]">
+        {board.heroImageUrl && (
+          <img
+            src={board.heroImageUrl}
+            alt={`${board.storeName} hero`}
+            className="absolute inset-0 h-full w-full object-cover opacity-35"
+            loading="eager"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-tr from-neutral-950/80 via-neutral-900/45 to-transparent" />
         <div className="absolute inset-10 rounded-[36px] border border-neutral-400/30 bg-[linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0))] p-8 backdrop-blur-sm">
           <h2 className="text-6xl font-black uppercase tracking-[0.1em] text-neutral-50">Dessert Spotlight</h2>
           <p className="mt-4 text-3xl text-neutral-100">Warm puddings, soft serve and seaside classics.</p>

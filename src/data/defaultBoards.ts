@@ -8,6 +8,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     currencySymbol: 'GBP',
     accentProfile: 'AMBER',
     customBrandHex: '#f59e0b',
+    heroImageUrl: '/screen-logo.png',
+    sidebarImageUrl: '/screen-logo.png',
     menuSections: [
       {
         id: 'popular',
@@ -19,6 +21,7 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
             description: 'Crisp battered fillet with chunky chips',
             pricePence: 1095,
             statusTags: ['HOT_DEAL', 'CONTAINS_FISH'],
+            imageUrl: '/screen-logo.png',
           },
           {
             id: 'pie-gravy',
@@ -118,6 +121,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     layoutStyle: 'TWO_COLUMN_GRID',
     currencySymbol: 'GBP',
     accentProfile: 'CYAN',
+    heroImageUrl: '/screen-logo.png',
+    sidebarImageUrl: '/screen-logo.png',
     menuSections: [
       {
         id: 'cold',
@@ -152,6 +157,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     layoutStyle: 'HALF_IMAGE',
     currencySymbol: 'GBP',
     accentProfile: 'ROSE',
+    heroImageUrl: '/screen-logo.png',
+    sidebarImageUrl: '/screen-logo.png',
     menuSections: [
       {
         id: 'desserts-core',

@@ -10,6 +10,7 @@ export interface MenuItem {
   description: string
   pricePence: number
   statusTags: StatusTag[]
+  imageUrl?: string
 }
 
 export interface MenuSection {
@@ -32,6 +33,8 @@ export interface SignageBoardConfig {
   currencySymbol: 'GBP'
   accentProfile: AccentProfile
   customBrandHex?: string
+  heroImageUrl?: string
+  sidebarImageUrl?: string
   menuSections: MenuSection[]
   sidebarItems: MarketingPanelItem[]
 }

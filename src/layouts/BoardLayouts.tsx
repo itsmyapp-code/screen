@@ -3,7 +3,6 @@ import { formatPriceGBP } from '../lib/format'
 import { getAccentClasses } from '../lib/branding'
 import type { SignageBoardConfig } from '../types/signage'
 import { StatusTagBadge } from '../ui/StatusTagBadge'
-import { PoweredByStrip } from '../ui/PoweredByStrip'
 import { DisplayUpdatedBadge } from '../ui/DisplayUpdatedBadge'
 
 interface LayoutProps {
@@ -89,11 +88,9 @@ const BottomNoticeBanner = ({ board }: LayoutProps) => {
         </div>
 
         <div className="flex items-end justify-between gap-3 overflow-hidden">
-          <PoweredByStrip
-            tone="dark"
-            compact
-            className="pointer-events-none max-w-[320px]"
-          />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+            Powered by Its My Screen
+          </p>
           <DisplayUpdatedBadge />
         </div>
       </div>

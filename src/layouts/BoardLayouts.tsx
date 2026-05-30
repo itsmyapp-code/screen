@@ -8,9 +8,22 @@ interface LayoutProps {
   board: SignageBoardConfig
 }
 
+const imageShapeClass = (board: SignageBoardConfig): string => {
+  if (board.imageCornerStyle === 'SQUARE') {
+    return 'rounded-none'
+  }
+
+  if (board.imageCornerStyle === 'SOFT') {
+    return 'rounded-lg'
+  }
+
+  return 'rounded-2xl'
+}
+
 const SidebarPanel = ({ board }: LayoutProps) => {
   const [index, setIndex] = useState(0)
   const accent = getAccentClasses(board)
+  const shapeClass = imageShapeClass(board)
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -31,7 +44,7 @@ const SidebarPanel = ({ board }: LayoutProps) => {
           <img
             src={board.sidebarImageUrl}
             alt={`${board.storeName} promo`}
-            className="h-36 w-full rounded-2xl border border-neutral-600 object-cover"
+            className={`h-36 w-full border border-neutral-600 object-cover ${shapeClass}`}
             loading="eager"
           />
         )}
@@ -52,7 +65,8 @@ const MenuItemLine = ({
   pricePence,
   statusTags,
   imageUrl,
-}: SignageBoardConfig['menuSections'][number]['items'][number]) => {
+  cornerClass,
+}: SignageBoardConfig['menuSections'][number]['items'][number] & { cornerClass: string }) => {
   return (
     <article className="rounded-xl border border-neutral-700 bg-neutral-900/80 p-4">
       <div className="flex items-start justify-between gap-4">
@@ -61,7 +75,7 @@ const MenuItemLine = ({
             <img
               src={imageUrl}
               alt={name}
-              className="h-16 w-16 shrink-0 rounded-xl border border-neutral-600 object-cover"
+              className={`h-16 w-16 shrink-0 border border-neutral-600 object-cover ${cornerClass}`}
               loading="lazy"
             />
           )}
@@ -87,6 +101,7 @@ const MenuItemLine = ({
 
 export const ThreeColumnLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
+  const shapeClass = imageShapeClass(board)
 
   return (
     <div className="flex h-full w-full">
@@ -100,11 +115,13 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
             <img
               src={board.heroImageUrl}
               alt={`${board.storeName} logo`}
-              className="h-24 w-24 rounded-2xl border border-neutral-600 object-cover"
+              className={`h-24 w-24 border border-neutral-600 object-cover ${shapeClass}`}
               loading="eager"
             />
           )}
-          <p className="text-xl font-semibold uppercase tracking-[0.14em] text-neutral-300">Queue Friendly Display</p>
+          {board.queueHeaderText && board.queueHeaderText.trim().length > 0 && (
+            <p className="text-xl font-semibold uppercase tracking-[0.14em] text-neutral-300">{board.queueHeaderText}</p>
+          )}
         </header>
 
         <div className="grid flex-1 grid-cols-3 gap-4">
@@ -115,7 +132,7 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
               </h3>
               <div className="space-y-3">
                 {section.items.map((item) => (
-                  <MenuItemLine key={item.id} {...item} />
+                  <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
                 ))}
               </div>
             </section>
@@ -129,6 +146,7 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
 
 export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
+  const shapeClass = imageShapeClass(board)
 
   return (
     <div className="flex h-full w-full">
@@ -139,7 +157,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
             <img
               src={board.heroImageUrl}
               alt={`${board.storeName} logo`}
-              className="h-24 w-24 rounded-2xl border border-neutral-600 object-cover"
+              className={`h-24 w-24 border border-neutral-600 object-cover ${shapeClass}`}
               loading="eager"
             />
           )}
@@ -152,7 +170,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
               </h3>
               <div className="space-y-3">
                 {section.items.map((item) => (
-                  <MenuItemLine key={item.id} {...item} />
+                  <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
                 ))}
               </div>
             </section>
@@ -166,6 +184,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
 
 export const HalfImageLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
+  const shapeClass = imageShapeClass(board)
 
   const dessertItems = useMemo(
     () => board.menuSections.flatMap((section) => section.items),
@@ -197,7 +216,7 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
         <h1 className="text-5xl font-black uppercase tracking-[0.12em] text-neutral-50">Sweet Finish Menu</h1>
         <div className="mt-6 space-y-4">
           {dessertItems.map((item) => (
-            <MenuItemLine key={item.id} {...item} />
+            <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
           ))}
         </div>
       </section>

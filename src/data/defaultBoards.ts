@@ -12,6 +12,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     customBrandHex: '#f59e0b',
     displayTintHex: '#000000',
     displayTintOpacity: 0,
+    imageCornerStyle: 'ROUNDED',
+    queueHeaderText: 'Queue Friendly Display',
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [
@@ -137,6 +139,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     accentProfile: 'CYAN',
     displayTintHex: '#000000',
     displayTintOpacity: 0,
+    imageCornerStyle: 'ROUNDED',
+    queueHeaderText: 'Queue Friendly Display',
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [
@@ -185,6 +189,8 @@ export const defaultBoards: Record<string, SignageBoardConfig> = {
     accentProfile: 'ROSE',
     displayTintHex: '#000000',
     displayTintOpacity: 0,
+    imageCornerStyle: 'ROUNDED',
+    queueHeaderText: 'Queue Friendly Display',
     heroImageUrl: '/screen-logo.png',
     sidebarImageUrl: '/screen-logo.png',
     menuSections: [

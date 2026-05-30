@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom'
 import { defaultBoardId, defaultBoards } from '../data/defaultBoards'
 import { useAuthUser } from '../hooks/useAuthUser'
 import { useLiveMenu } from '../hooks/useLiveMenu'
+import { imageFileToWebpDataUrl, validateImageFile } from '../lib/imageUpload'
 import { pushBoardUpdate } from '../lib/pushBoardUpdate'
 import { ensureUserBoard } from '../lib/userBoard'
-import type { AccentProfile, SignageBoardConfig } from '../types/signage'
+import type { AccentProfile, ImageCornerStyle, SignageBoardConfig } from '../types/signage'
 
 const ACCENT_OPTIONS: AccentProfile[] = ['AMBER', 'CYAN', 'LIME', 'ROSE']
+const CORNER_OPTIONS: ImageCornerStyle[] = ['ROUNDED', 'SOFT', 'SQUARE']
 
 export const DisplaySettingsPage = () => {
   const { user } = useAuthUser()
@@ -16,6 +18,7 @@ export const DisplaySettingsPage = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [messageKind, setMessageKind] = useState<'success' | 'error'>('success')
   const [board, setBoard] = useState<SignageBoardConfig>(defaultBoards[defaultBoardId])
 
   const live = useLiveMenu(boardId ?? defaultBoardId)
@@ -56,34 +59,31 @@ export const DisplaySettingsPage = () => {
 
     if (!file.type.startsWith('image/')) {
       setMessage('Please choose an image file.')
+      setMessageKind('error')
       event.target.value = ''
       return
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage('Image is too large. Keep it under 2MB.')
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setMessage(validationError)
+      setMessageKind('error')
       event.target.value = ''
       return
     }
 
-    const url = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result)
-        } else {
-          reject(new Error('Image read failed.'))
-        }
-      }
-      reader.onerror = () => reject(new Error('Image read failed.'))
-      reader.readAsDataURL(file)
-    })
-
-    setBoard((prev) => ({
-      ...prev,
-      [field]: url,
-    }))
-    setMessage('')
+    try {
+      const url = await imageFileToWebpDataUrl(file)
+      setBoard((prev) => ({
+        ...prev,
+        [field]: url,
+      }))
+      setMessage('Image converted to WEBP and loaded. Save settings to publish.')
+      setMessageKind('success')
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : 'Unable to process image file.')
+      setMessageKind('error')
+    }
     event.target.value = ''
   }
 
@@ -94,9 +94,11 @@ export const DisplaySettingsPage = () => {
 
     try {
       await pushBoardUpdate(board)
-      setMessage('Display settings saved.')
+      setMessage('Display settings saved successfully.')
+      setMessageKind('success')
     } catch (reason) {
       setMessage(reason instanceof Error ? reason.message : 'Unable to save settings.')
+      setMessageKind('error')
     } finally {
       setSaving(false)
     }
@@ -128,6 +130,20 @@ export const DisplaySettingsPage = () => {
           </label>
 
           <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Queue Header Text</span>
+            <input
+              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+              value={board.queueHeaderText ?? ''}
+              onChange={(event) => setBoard((prev) => ({
+                ...prev,
+                queueHeaderText: event.target.value,
+              }))}
+              placeholder="Queue Friendly Display"
+            />
+            <p className="mt-1 text-xs text-neutral-600">Leave empty to hide this label on the display.</p>
+          </label>
+
+          <label className="block">
             <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Accent Colour Theme</span>
             <select
               className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
@@ -138,6 +154,22 @@ export const DisplaySettingsPage = () => {
               }))}
             >
               {ACCENT_OPTIONS.map((entry) => (
+                <option key={entry} value={entry}>{entry}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Image Corner Style</span>
+            <select
+              className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+              value={board.imageCornerStyle ?? 'ROUNDED'}
+              onChange={(event) => setBoard((prev) => ({
+                ...prev,
+                imageCornerStyle: event.target.value as ImageCornerStyle,
+              }))}
+            >
+              {CORNER_OPTIONS.map((entry) => (
                 <option key={entry} value={entry}>{entry}</option>
               ))}
             </select>
@@ -202,7 +234,11 @@ export const DisplaySettingsPage = () => {
           </label>
 
           {message && (
-            <p className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-800">{message}</p>
+            <p className={
+              messageKind === 'success'
+                ? 'rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800'
+                : 'rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700'
+            }>{message}</p>
           )}
 
           <button

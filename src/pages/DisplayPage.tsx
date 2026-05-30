@@ -9,7 +9,7 @@ import {
   ThreeColumnLayout,
   TwoColumnGridLayout,
 } from '../layouts/BoardLayouts'
-import { ConnectivityBadge } from '../ui/ConnectivityBadge'
+import { DisplayUpdatedBadge } from '../ui/DisplayUpdatedBadge'
 import { PoweredByStrip } from '../ui/PoweredByStrip'
 import type { PlaybackMode } from '../types/signage'
 
@@ -42,7 +42,7 @@ export const DisplayPage = () => {
   const [searchParams] = useSearchParams()
   const boardId = params.boardId ?? defaultBoardId
   const scale = useViewportScale()
-  const { board, online } = useLiveMenu(boardId)
+  const { board } = useLiveMenu(boardId)
   const [showMedia, setShowMedia] = useState(false)
   const [mediaIndex, setMediaIndex] = useState(0)
 
@@ -144,7 +144,7 @@ export const DisplayPage = () => {
             compact
             className="pointer-events-none absolute bottom-2 left-2 max-w-[290px]"
           />
-          <ConnectivityBadge online={online} />
+          <DisplayUpdatedBadge />
         </div>
       </div>
     </main>

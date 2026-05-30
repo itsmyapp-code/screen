@@ -24,6 +24,8 @@ const normalizeBoard = (input: SignageBoardConfig): SignageBoardConfig => {
     menuHoldSeconds: input.menuHoldSeconds ?? 20,
     displayTintHex: input.displayTintHex ?? '#000000',
     displayTintOpacity: input.displayTintOpacity ?? 0,
+    imageCornerStyle: input.imageCornerStyle ?? 'ROUNDED',
+    queueHeaderText: input.queueHeaderText ?? 'Queue Friendly Display',
     mediaPlaylist: input.mediaPlaylist ?? [],
   }
 }

@@ -8,6 +8,21 @@ interface LayoutProps {
   board: SignageBoardConfig
 }
 
+const MENU_PAGE_INTERVAL_MS = 10_000
+
+const chunkItems = <T,>(items: T[], size: number): T[][] => {
+  if (size <= 0) {
+    return [items]
+  }
+
+  const pages: T[][] = []
+  for (let index = 0; index < items.length; index += size) {
+    pages.push(items.slice(index, index + size))
+  }
+
+  return pages.length > 0 ? pages : [[]]
+}
+
 const imageShapeClass = (board: SignageBoardConfig): string => {
   if (board.imageCornerStyle === 'SQUARE') {
     return 'rounded-none'
@@ -118,6 +133,28 @@ const MenuItemLine = ({
 export const ThreeColumnLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
   const shapeClass = imageShapeClass(board)
+  const sectionPages = useMemo(() => chunkItems(board.menuSections, 3), [board.menuSections])
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [board.boardId, board.menuSections])
+
+  useEffect(() => {
+    if (sectionPages.length <= 1) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setPageIndex((current) => (current + 1) % sectionPages.length)
+    }, MENU_PAGE_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [sectionPages.length])
+
+  const currentSections = sectionPages[pageIndex] ?? []
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -141,7 +178,7 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
         </header>
 
         <div className="grid min-h-0 flex-1 grid-cols-6 gap-4 auto-rows-fr">
-          {board.menuSections.slice(0, 4).map((section, index) => (
+          {currentSections.map((section, index) => (
             <section
               key={section.id}
               className={
@@ -161,6 +198,11 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
             </section>
           ))}
         </div>
+        {sectionPages.length > 1 && (
+          <p className="mt-2 text-right text-sm font-semibold text-neutral-400">
+            Menu Page {pageIndex + 1} of {sectionPages.length}
+          </p>
+        )}
       </section>
       <BottomNoticeBanner board={board} />
     </div>
@@ -170,6 +212,28 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
 export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
   const shapeClass = imageShapeClass(board)
+  const sectionPages = useMemo(() => chunkItems(board.menuSections, 4), [board.menuSections])
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [board.boardId, board.menuSections])
+
+  useEffect(() => {
+    if (sectionPages.length <= 1) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setPageIndex((current) => (current + 1) % sectionPages.length)
+    }, MENU_PAGE_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [sectionPages.length])
+
+  const currentSections = sectionPages[pageIndex] ?? []
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -186,7 +250,7 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
           )}
         </div>
         <div className="mt-5 grid min-h-0 grid-cols-4 gap-5 auto-rows-fr">
-          {board.menuSections.map((section, index) => (
+          {currentSections.map((section, index) => (
             <section
               key={section.id}
               className={
@@ -206,6 +270,11 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
             </section>
           ))}
         </div>
+        {sectionPages.length > 1 && (
+          <p className="mt-2 text-right text-sm font-semibold text-neutral-400">
+            Menu Page {pageIndex + 1} of {sectionPages.length}
+          </p>
+        )}
       </section>
       <BottomNoticeBanner board={board} />
     </div>
@@ -215,13 +284,35 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
 export const HalfImageLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
   const shapeClass = imageShapeClass(board)
-  const leadSection = board.menuSections[0]
-  const leadItem = leadSection?.items[0]
 
-  const dessertItems = useMemo(
+  const allItems = useMemo(
     () => board.menuSections.flatMap((section) => section.items),
     [board.menuSections],
   )
+  const itemPages = useMemo(() => chunkItems(allItems, 6), [allItems])
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [board.boardId, allItems])
+
+  useEffect(() => {
+    if (itemPages.length <= 1) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setPageIndex((current) => (current + 1) % itemPages.length)
+    }, MENU_PAGE_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [itemPages.length])
+
+  const currentItems = itemPages[pageIndex] ?? []
+  const leadSection = board.menuSections[0]
+  const leadItem = currentItems[0] ?? allItems[0]
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -250,10 +341,15 @@ export const HalfImageLayout = ({ board }: LayoutProps) => {
       <section className="flex min-h-0 w-1/2 flex-col px-8 py-6">
         <h1 className="text-5xl font-black uppercase tracking-[0.12em] text-neutral-50">{board.storeName}</h1>
         <div className="mt-5 flex-1 space-y-3 overflow-y-auto pr-1">
-          {dessertItems.map((item) => (
+          {currentItems.map((item) => (
             <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
           ))}
         </div>
+        {itemPages.length > 1 && (
+          <p className="mt-2 text-right text-sm font-semibold text-neutral-400">
+            Menu Page {pageIndex + 1} of {itemPages.length}
+          </p>
+        )}
       </section>
       </div>
       <BottomNoticeBanner board={board} />

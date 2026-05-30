@@ -19,10 +19,10 @@ const makeBoardId = (uid: string): string => {
 }
 
 export const ensureUserBoard = async (user: User): Promise<string> => {
-  const boardId = makeBoardId(user.uid)
+  const generatedBoardId = makeBoardId(user.uid)
 
   if (!db) {
-    return boardId
+    return generatedBoardId
   }
 
   const profileRef = doc(db, 'users', user.uid)
@@ -31,6 +31,11 @@ export const ensureUserBoard = async (user: User): Promise<string> => {
   const existingProfileBoardId = profileSnapshot.exists()
     ? (profileSnapshot.data().boardId as string | undefined)
     : undefined
+
+  const boardId =
+    typeof existingProfileBoardId === 'string' && existingProfileBoardId.trim().length > 0
+      ? existingProfileBoardId
+      : generatedBoardId
 
   if (!profileSnapshot.exists() || existingProfileBoardId !== boardId) {
     const profile: UserProfile = {

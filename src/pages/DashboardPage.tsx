@@ -116,8 +116,13 @@ export const DashboardPage = () => {
 
   const onSave = async (event: FormEvent) => {
     event.preventDefault()
-    await pushBoardUpdate(board)
-    setSavedAt(new Date())
+    try {
+      await pushBoardUpdate(board)
+      setSavedAt(new Date())
+      setSetupError('')
+    } catch (reason) {
+      setSetupError(reason instanceof Error ? reason.message : 'Unable to save changes to board.')
+    }
   }
 
   const onTagToggle = (tag: StatusTag) => {
@@ -699,6 +704,11 @@ export const DashboardPage = () => {
         </form>
 
         <section className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
+          {setupError && (
+            <p className="mb-3 rounded-xl border border-red-200 bg-red-50 p-3 font-semibold text-red-700">
+              {setupError}
+            </p>
+          )}
           <p className="font-bold text-neutral-900">Your Unique Display URLs</p>
           <Link className="mt-1 inline-block font-semibold text-blue-700 underline" to={`/display/${board.boardId}`}>
             Open live board view for {board.boardId}

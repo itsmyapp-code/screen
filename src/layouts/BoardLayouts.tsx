@@ -138,6 +138,55 @@ const MenuItemLine = ({
   )
 }
 
+const PagedSectionCard = ({
+  section,
+  accentClass,
+  cornerClass,
+}: {
+  section: SignageBoardConfig['menuSections'][number]
+  accentClass: string
+  cornerClass: string
+}) => {
+  const itemPages = useMemo(() => chunkItems(section.items, 3), [section.items])
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [section.id, section.items])
+
+  useEffect(() => {
+    if (itemPages.length <= 1) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setPageIndex((current) => (current + 1) % itemPages.length)
+    }, MENU_PAGE_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [itemPages.length])
+
+  const currentItems = itemPages[pageIndex] ?? []
+
+  return (
+    <section className="flex min-h-0 flex-col space-y-4 overflow-hidden rounded-3xl border border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-5 shadow-[0_8px_26px_rgba(0,0,0,0.28)]">
+      <h3 className={accentClass}>{section.title}</h3>
+      <div className="flex min-h-0 flex-1 flex-col space-y-3">
+        {currentItems.map((item) => (
+          <MenuItemLine key={item.id} {...item} cornerClass={cornerClass} />
+        ))}
+      </div>
+      {itemPages.length > 1 && (
+        <p className="pt-1 text-right text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">
+          Page {pageIndex + 1} of {itemPages.length}
+        </p>
+      )}
+    </section>
+  )
+}
+
 export const ThreeColumnLayout = ({ board }: LayoutProps) => {
   const accent = getAccentClasses(board)
   const shapeClass = imageShapeClass(board)
@@ -186,23 +235,13 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
         </header>
 
         <div className="grid min-h-0 flex-1 grid-cols-3 gap-4 auto-rows-fr">
-          {currentSections.map((section, index) => (
-            <section
+          {currentSections.map((section) => (
+            <PagedSectionCard
               key={section.id}
-              className={`flex min-h-0 flex-col space-y-4 overflow-hidden rounded-3xl border ${index === 0
-                ? 'border-neutral-500/80 bg-[linear-gradient(145deg,rgba(23,23,23,0.88),rgba(10,10,10,0.96))] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
-                : 'border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-5 shadow-[0_8px_26px_rgba(0,0,0,0.28)]'
-              }`}
-            >
-              <h3 className={accent.sectionTitleSm}>
-                {section.title}
-              </h3>
-              <div className="flex min-h-0 flex-1 flex-col space-y-3">
-                {section.items.map((item) => (
-                  <MenuItemLine key={item.id} {...item} cornerClass={shapeClass} />
-                ))}
-              </div>
-            </section>
+              section={section}
+              accentClass={accent.sectionTitleSm}
+              cornerClass={shapeClass}
+            />
           ))}
         </div>
         {sectionPages.length > 1 && (

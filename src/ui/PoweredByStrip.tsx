@@ -26,19 +26,25 @@ const DARK_BASE =
 
 export const PoweredByStrip = ({ tone = 'light', compact = false, className = '' }: Props) => {
   const baseClasses = tone === 'dark' ? DARK_BASE : LIGHT_BASE
+  const logoFrame = tone === 'dark'
+    ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/10 p-1'
+    : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-neutral-100 p-1'
+  const logoImage = 'h-full w-full object-contain'
 
   if (compact) {
     return (
       <div className={`${baseClasses} ${className} flex items-center gap-3 px-3 py-2`}>
-        <img
-          src="/itsmyapp_logo.png"
-          alt="itsmyapp.co.uk logo"
-          className="h-8 w-8 rounded-md object-cover"
-          loading="lazy"
-          onError={logoErrorFallback}
-        />
+        <div className={logoFrame}>
+          <img
+            src="/itsmyapp_logo.png"
+            alt="Its My Screen logo"
+            className={logoImage}
+            loading="lazy"
+            onError={logoErrorFallback}
+          />
+        </div>
         <div className="min-w-0 text-[11px] leading-tight sm:text-xs">
-          <p className="font-bold">Powered by Its My Cutlist</p>
+          <p className="font-bold">Powered by Its My Screen</p>
           <p className="truncate">Developed by itsmyapp.co.uk | Copyright 2026</p>
           <p className="truncate">hello@itsmyapp.co.uk</p>
         </div>
@@ -49,14 +55,16 @@ export const PoweredByStrip = ({ tone = 'light', compact = false, className = ''
   return (
     <div className={`${baseClasses} ${className} flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between`}>
       <div className="flex items-center gap-3">
-        <img
-          src="/itsmyapp_logo.png"
-          alt="itsmyapp.co.uk logo"
-          className="h-10 w-10 rounded-lg object-cover"
-          loading="lazy"
-          onError={logoErrorFallback}
-        />
-        <p className="text-sm font-black uppercase tracking-wide">Powered by Its My Cutlist</p>
+        <div className={logoFrame}>
+          <img
+            src="/itsmyapp_logo.png"
+            alt="Its My Screen logo"
+            className={logoImage}
+            loading="lazy"
+            onError={logoErrorFallback}
+          />
+        </div>
+        <p className="text-sm font-black uppercase tracking-wide">Powered by Its My Screen</p>
       </div>
       <div className="text-xs font-semibold sm:text-right">
         <p>Developed by itsmyapp.co.uk</p>

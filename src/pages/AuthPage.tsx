@@ -5,7 +5,7 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from 'firebase/auth'
-import { auth } from '../lib/firebase'
+import { auth, firebaseConfigErrorMessage } from '../lib/firebase'
 import { ensureUserBoard } from '../lib/userBoard'
 import { useAuthUser } from '../hooks/useAuthUser'
 import { PoweredByStrip } from '../ui/PoweredByStrip'
@@ -29,7 +29,7 @@ export const AuthPage = () => {
 
   const submit = async (): Promise<void> => {
     if (!auth) {
-      setError('Firebase auth is not configured. Add VITE_FIREBASE_* variables.')
+      setError(firebaseConfigErrorMessage)
       return
     }
 
@@ -55,7 +55,7 @@ export const AuthPage = () => {
 
   const forgotPassword = async (): Promise<void> => {
     if (!auth) {
-      setError('Firebase auth is not configured. Add VITE_FIREBASE_* variables.')
+      setError(firebaseConfigErrorMessage)
       return
     }
 

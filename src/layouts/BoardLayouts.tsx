@@ -48,11 +48,11 @@ const SidebarPanel = ({ board }: LayoutProps) => {
             loading="eager"
           />
         )}
-        <p className="text-xl font-bold uppercase tracking-[0.16em] text-neutral-300">Live Notices</p>
+        <p className="text-lg font-bold uppercase tracking-[0.16em] text-neutral-300">Live Notices</p>
         <h2 className={accent.sidebarHeadline}>{active.headline}</h2>
-        <p className="text-3xl leading-relaxed text-neutral-100">{active.body}</p>
+        <p className="text-2xl leading-relaxed text-neutral-100">{active.body}</p>
       </div>
-      <p className="text-xl font-semibold tracking-wide text-neutral-400">
+      <p className="text-lg font-semibold tracking-wide text-neutral-400">
         Ask staff for allergen matrix and ingredient details.
       </p>
     </aside>
@@ -124,9 +124,16 @@ export const ThreeColumnLayout = ({ board }: LayoutProps) => {
           )}
         </header>
 
-        <div className="grid flex-1 grid-cols-3 gap-4">
-          {board.menuSections.slice(0, 3).map((section) => (
-            <section key={section.id} className="space-y-4 rounded-2xl border border-neutral-700 bg-neutral-900/70 p-4">
+        <div className="grid flex-1 grid-cols-6 gap-4 auto-rows-fr">
+          {board.menuSections.slice(0, 4).map((section, index) => (
+            <section
+              key={section.id}
+              className={
+                index === 0
+                  ? 'col-span-4 row-span-2 space-y-4 rounded-3xl border border-neutral-500/80 bg-[linear-gradient(145deg,rgba(23,23,23,0.88),rgba(10,10,10,0.96))] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
+                  : 'col-span-2 space-y-4 rounded-3xl border border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-4 shadow-[0_8px_26px_rgba(0,0,0,0.28)]'
+              }
+            >
               <h3 className={accent.sectionTitleSm}>
                 {section.title}
               </h3>
@@ -162,9 +169,16 @@ export const TwoColumnGridLayout = ({ board }: LayoutProps) => {
             />
           )}
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-5">
-          {board.menuSections.map((section) => (
-            <section key={section.id} className="rounded-2xl border border-neutral-700 bg-neutral-900/70 p-4">
+        <div className="mt-6 grid grid-cols-4 gap-5 auto-rows-fr">
+          {board.menuSections.map((section, index) => (
+            <section
+              key={section.id}
+              className={
+                index % 3 === 0
+                  ? 'col-span-2 rounded-3xl border border-neutral-500/80 bg-[linear-gradient(145deg,rgba(23,23,23,0.88),rgba(10,10,10,0.96))] p-5 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
+                  : 'col-span-2 rounded-3xl border border-neutral-600/70 bg-[linear-gradient(145deg,rgba(38,38,38,0.82),rgba(10,10,10,0.92))] p-4 shadow-[0_8px_26px_rgba(0,0,0,0.28)]'
+              }
+            >
               <h3 className={accent.sectionTitleLg}>
                 {section.title}
               </h3>

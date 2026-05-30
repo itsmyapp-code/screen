@@ -11,6 +11,65 @@ import type { AccentProfile, ImageCornerStyle, SignageBoardConfig } from '../typ
 
 const ACCENT_OPTIONS: AccentProfile[] = ['AMBER', 'CYAN', 'LIME', 'ROSE']
 const CORNER_OPTIONS: ImageCornerStyle[] = ['ROUNDED', 'SOFT', 'SQUARE']
+const LAYOUT_OPTIONS: Array<{ value: SignageBoardConfig['layoutStyle']; label: string; description: string }> = [
+  {
+    value: 'THREE_COLUMN',
+    label: 'Three Column Bento',
+    description: 'Menu-heavy layout with bento-style section tiles and sidebar notices.',
+  },
+  {
+    value: 'TWO_COLUMN_GRID',
+    label: 'Two Column Grid',
+    description: 'Balanced menu grid with a right notices panel.',
+  },
+  {
+    value: 'HALF_IMAGE',
+    label: 'Half Image Spotlight',
+    description: 'Strong hero visual on left and menu list on right.',
+  },
+]
+
+const VIBRANT_PRESETS: Array<{
+  id: string
+  name: string
+  accentProfile: AccentProfile
+  displayTintHex: string
+  displayTintOpacity: number
+  layoutStyle: SignageBoardConfig['layoutStyle']
+}> = [
+  {
+    id: 'sunset-pop',
+    name: 'Sunset Pop',
+    accentProfile: 'ROSE',
+    displayTintHex: '#22050f',
+    displayTintOpacity: 0.12,
+    layoutStyle: 'THREE_COLUMN',
+  },
+  {
+    id: 'electric-cool',
+    name: 'Electric Cool',
+    accentProfile: 'CYAN',
+    displayTintHex: '#001b2d',
+    displayTintOpacity: 0.1,
+    layoutStyle: 'TWO_COLUMN_GRID',
+  },
+  {
+    id: 'citrus-flare',
+    name: 'Citrus Flare',
+    accentProfile: 'LIME',
+    displayTintHex: '#1a2205',
+    displayTintOpacity: 0.1,
+    layoutStyle: 'THREE_COLUMN',
+  },
+  {
+    id: 'gold-rush',
+    name: 'Gold Rush',
+    accentProfile: 'AMBER',
+    displayTintHex: '#2b1400',
+    displayTintOpacity: 0.12,
+    layoutStyle: 'HALF_IMAGE',
+  },
+]
 
 export const DisplaySettingsPage = () => {
   const { user } = useAuthUser()
@@ -104,14 +163,31 @@ export const DisplaySettingsPage = () => {
     }
   }
 
+  const applyPreset = (presetId: string): void => {
+    const preset = VIBRANT_PRESETS.find((entry) => entry.id === presetId)
+    if (!preset) {
+      return
+    }
+
+    setBoard((prev) => ({
+      ...prev,
+      accentProfile: preset.accentProfile,
+      displayTintHex: preset.displayTintHex,
+      displayTintOpacity: preset.displayTintOpacity,
+      layoutStyle: preset.layoutStyle,
+    }))
+    setMessage(`Applied preset: ${preset.name}. Save settings to publish.`)
+    setMessageKind('success')
+  }
+
   if (loading) {
     return <main className="flex min-h-screen items-center justify-center bg-neutral-100 text-neutral-700">Loading settings...</main>
   }
 
   return (
-    <main className="min-h-screen bg-neutral-100 px-4 py-6 text-neutral-900 sm:px-6">
-      <section className="mx-auto w-full max-w-3xl rounded-3xl border border-neutral-200 bg-white/95 p-4 shadow-xl shadow-neutral-900/10 sm:p-6">
-        <header className="mb-4">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_20%,#fef08a_0%,#cffafe_48%,#fecdd3_100%)] px-4 py-6 text-neutral-900 sm:px-6">
+      <section className="mx-auto grid w-full max-w-5xl gap-4 rounded-3xl border border-neutral-200 bg-white/90 p-4 shadow-xl shadow-neutral-900/10 sm:grid-cols-6 sm:p-6">
+        <header className="mb-1 sm:col-span-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">Display Settings</p>
           <h1 className="mt-1 text-3xl font-black text-neutral-900">Screen Name, Images and Colours</h1>
           <p className="mt-2 text-sm text-neutral-700">
@@ -119,7 +195,47 @@ export const DisplaySettingsPage = () => {
           </p>
         </header>
 
-        <form className="space-y-4" onSubmit={(event) => { void save(event) }}>
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 sm:col-span-6">
+          <p className="text-sm font-bold uppercase tracking-wide text-neutral-600">Vibrant Presets</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {VIBRANT_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => applyPreset(preset.id)}
+                className="rounded-xl border border-neutral-200 bg-[linear-gradient(135deg,#111827_0%,#334155_45%,#0f172a_100%)] p-3 text-left text-white shadow-md"
+              >
+                <p className="text-sm font-black">{preset.name}</p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-white/80">{preset.layoutStyle.replaceAll('_', ' ')}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 sm:col-span-6">
+          <p className="text-sm font-bold uppercase tracking-wide text-neutral-600">Complete Screen Layout</p>
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {LAYOUT_OPTIONS.map((layout) => (
+              <button
+                key={layout.value}
+                type="button"
+                onClick={() => {
+                  setBoard((prev) => ({ ...prev, layoutStyle: layout.value }))
+                }}
+                className={
+                  board.layoutStyle === layout.value
+                    ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-left'
+                    : 'rounded-xl border border-neutral-200 bg-white p-3 text-left'
+                }
+              >
+                <p className="text-sm font-black text-neutral-900">{layout.label}</p>
+                <p className="mt-1 text-xs text-neutral-700">{layout.description}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <form className="space-y-4 sm:col-span-4" onSubmit={(event) => { void save(event) }}>
           <label className="block">
             <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Display Name</span>
             <input
@@ -250,7 +366,20 @@ export const DisplaySettingsPage = () => {
           </button>
         </form>
 
-        <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-neutral-700">
+        <aside className="space-y-4 sm:col-span-2">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <p className="text-sm font-bold uppercase tracking-wide text-neutral-600">Live Preview Summary</p>
+            <p className="mt-2 text-sm text-neutral-700">Accent: <span className="font-bold text-neutral-900">{board.accentProfile}</span></p>
+            <p className="text-sm text-neutral-700">Layout: <span className="font-bold text-neutral-900">{board.layoutStyle}</span></p>
+            <p className="text-sm text-neutral-700">Tint: <span className="font-bold text-neutral-900">{Math.round((board.displayTintOpacity ?? 0) * 100)}%</span></p>
+          </div>
+          <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-sm text-neutral-700">
+            <p className="font-bold text-neutral-900">Bento Tip</p>
+            <p className="mt-1">Use <span className="font-semibold">THREE_COLUMN</span> or <span className="font-semibold">TWO_COLUMN_GRID</span> for the strongest bento look.</p>
+          </div>
+        </aside>
+
+        <div className="mt-2 flex flex-wrap gap-3 text-sm font-semibold text-neutral-700 sm:col-span-6">
           <Link to="/dashboard" className="underline">Back to Dashboard</Link>
           <Link to={`/display/${board.boardId}`} className="underline">Open Display Preview</Link>
         </div>

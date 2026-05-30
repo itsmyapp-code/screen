@@ -33,7 +33,6 @@ export const DashboardPage = () => {
   const [setupError, setSetupError] = useState<string>('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
-  const [editorMode, setEditorMode] = useState<'MENU' | 'NOTICES' | 'MEDIA'>('MENU')
   const [board, setBoard] = useState<SignageBoardConfig>(defaultBoards[defaultBoardId])
   const [selectedSectionId, setSelectedSectionId] = useState(board.menuSections[0].id)
   const [selectedItemId, setSelectedItemId] = useState(board.menuSections[0].items[0].id)
@@ -517,7 +516,7 @@ export const DashboardPage = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button
                   type="button"
                   className="h-11 rounded-xl border border-neutral-300 bg-white px-3 text-sm font-bold text-neutral-800"
@@ -539,140 +538,15 @@ export const DashboardPage = () => {
                 </button>
               </div>
 
-              <div className="mt-4 space-y-4">
-                <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-600">Sections</p>
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
-                        onClick={addMenuSection}
-                      >
-                        Add
-                      </button>
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
-                        onClick={deleteSelectedSection}
-                        disabled={board.menuSections.length <= 1}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {board.menuSections.map((section) => (
-                      <button
-                        key={section.id}
-                        type="button"
-                        className={
-                          section.id === selectedSectionId
-                            ? 'w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-left text-sm font-semibold text-emerald-900'
-                            : 'w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left text-sm text-neutral-800'
-                        }
-                        onClick={() => {
-                          setSelectedSectionId(section.id)
-                          setSelectedItemId(section.items[0]?.id ?? '')
-                          setEditorMode('MENU')
-                        }}
-                      >
-                        {section.title}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-600">Items</p>
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
-                        onClick={addMenuItem}
-                      >
-                        Add
-                      </button>
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
-                        onClick={deleteSelectedMenuItem}
-                        disabled={!selectedItem || selectedSection.items.length <= 1}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {selectedSection.items.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        className={
-                          item.id === selectedItemId
-                            ? 'w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-left text-sm font-semibold text-emerald-900'
-                            : 'w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left text-sm text-neutral-800'
-                        }
-                        onClick={() => {
-                          setSelectedItemId(item.id)
-                          setEditorMode('MENU')
-                        }}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-neutral-600">Live Notices</p>
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
-                        onClick={addNotice}
-                      >
-                        Add
-                      </button>
-                      <button
-                        type="button"
-                        className="h-8 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
-                        onClick={deleteSelectedNotice}
-                        disabled={!selectedNotice || board.sidebarItems.length <= 1}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {board.sidebarItems.map((notice) => (
-                      <button
-                        key={notice.id}
-                        type="button"
-                        className={
-                          notice.id === selectedNoticeId
-                            ? 'w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-left text-sm font-semibold text-emerald-900'
-                            : 'w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left text-sm text-neutral-800'
-                        }
-                        onClick={() => {
-                          setSelectedNoticeId(notice.id)
-                          setEditorMode('NOTICES')
-                        }}
-                      >
-                        {notice.headline || 'Untitled notice'}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              </div>
+              <p className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
+                Menu, section, item, and live notice editing is now on the main dashboard page below.
+              </p>
 
               {helpOpen && (
                 <article className="mt-4 space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-800">
                   <h2 className="text-base font-black text-neutral-900">Help: Running Your Screen</h2>
-                  <p>Use the drawer lists to pick a section, menu item, or notice by name.</p>
-                  <p>Edit the selected content in the main panel, then tap Push Update to Display.</p>
+                  <p>Select a section, item, and notice in the on-page manager cards.</p>
+                  <p>Edit content and pricing, then tap Push Update to Display.</p>
                 </article>
               )}
             </aside>
@@ -723,49 +597,8 @@ export const DashboardPage = () => {
           </div>
           <h1 className="text-3xl font-black text-neutral-900">Digital Signage Dashboard</h1>
           <p className="text-base text-neutral-700">
-            Choose a content area below, edit quickly, then push changes live.
+            Update menu sections, items, prices, and notices directly on this screen.
           </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              className={
-                editorMode === 'MENU'
-                  ? 'h-11 rounded-xl border border-emerald-300 bg-emerald-50 text-sm font-bold text-emerald-900'
-                  : 'h-11 rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800'
-              }
-              onClick={() => {
-                setEditorMode('MENU')
-              }}
-            >
-              Menu
-            </button>
-            <button
-              type="button"
-              className={
-                editorMode === 'NOTICES'
-                  ? 'h-11 rounded-xl border border-emerald-300 bg-emerald-50 text-sm font-bold text-emerald-900'
-                  : 'h-11 rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800'
-              }
-              onClick={() => {
-                setEditorMode('NOTICES')
-              }}
-            >
-              Notices
-            </button>
-            <button
-              type="button"
-              className={
-                editorMode === 'MEDIA'
-                  ? 'h-11 rounded-xl border border-emerald-300 bg-emerald-50 text-sm font-bold text-emerald-900'
-                  : 'h-11 rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800'
-              }
-              onClick={() => {
-                setEditorMode('MEDIA')
-              }}
-            >
-              Media
-            </button>
-          </div>
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-bold">Subscription Logic (DMCCA 2027)</p>
             <p className="mt-1">Easy Exit enabled in one tap. Cooling-off reminder at day 13 for all paid plans.</p>
@@ -774,103 +607,32 @@ export const DashboardPage = () => {
         </header>
 
         <form className="mt-6 space-y-4" onSubmit={onSave}>
-          {editorMode === 'MEDIA' && (
-            <>
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Playback Mode</span>
-                <select
-                  className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
-                  value={board.playbackMode}
-                  onChange={(event) => updatePlaybackMode(event.target.value as PlaybackMode)}
-                >
-                  <option value="MENU_ONLY">Menu only</option>
-                  <option value="MIXED">Menu + media rotation</option>
-                  <option value="MEDIA_ONLY">Media only</option>
-                </select>
-              </label>
+          <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-3 lg:grid-cols-2">
+            <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-sm font-black uppercase tracking-[0.12em] text-neutral-700">Section and Item</p>
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Hold (seconds)</span>
-                <input
-                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-                  type="number"
-                  min="5"
-                  max="120"
-                  value={board.menuHoldSeconds}
-                  onChange={(event) => {
-                    const seconds = Number.parseInt(event.target.value, 10)
-                    setBoard((prev) => ({
-                      ...prev,
-                      menuHoldSeconds: Number.isFinite(seconds) ? Math.max(5, seconds) : 20,
-                    }))
-                  }}
-                />
-              </label>
+              <div className="space-y-2">
+                <label className="block">
+                  <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-neutral-600">Section</span>
+                  <select
+                    className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                    value={selectedSection.id}
+                    onChange={(event) => {
+                      const nextSection = board.menuSections.find((section) => section.id === event.target.value)
+                      if (!nextSection) {
+                        return
+                      }
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Header Image URL</span>
-                <input
-                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-                  placeholder="/screen-logo.png or https://..."
-                  value={board.heroImageUrl ?? ''}
-                  onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
-                />
-                <input
-                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    void uploadBoardImage(event, 'heroImageUrl')
-                  }}
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Sidebar Image URL</span>
-                <input
-                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-                  placeholder="/screen-logo.png or https://..."
-                  value={board.sidebarImageUrl ?? ''}
-                  onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
-                />
-                <input
-                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    void uploadBoardImage(event, 'sidebarImageUrl')
-                  }}
-                />
-              </label>
-            </>
-          )}
-
-          {editorMode === 'MENU' && (
-            <>
-              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                <p>
-                  Editing section: <span className="font-bold text-neutral-900">{selectedSection.title}</span>
-                </p>
-                <p>
-                  Editing item: <span className="font-bold text-neutral-900">{selectedItem?.name ?? 'No item selected'}</span>
-                </p>
-                <p className="mt-1 text-xs text-neutral-600">Quick actions below for faster menu updates.</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <button
-                    type="button"
-                    className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
-                    onClick={addMenuItem}
+                      setSelectedSectionId(nextSection.id)
+                      setSelectedItemId(nextSection.items[0]?.id ?? '')
+                    }}
                   >
-                    Add Item
-                  </button>
-                  <button
-                    type="button"
-                    className="h-10 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
-                    onClick={deleteSelectedMenuItem}
-                    disabled={!selectedItem || selectedSection.items.length <= 1}
-                  >
-                    Delete Item
-                  </button>
+                    {board.menuSections.map((section) => (
+                      <option key={section.id} value={section.id}>{section.title}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
@@ -889,24 +651,105 @@ export const DashboardPage = () => {
                 </div>
               </div>
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Section Name</span>
-                <input
-                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-                  value={selectedSection.title}
-                  onChange={(event) => {
-                    setBoard((prev) => ({
-                      ...prev,
-                      menuSections: prev.menuSections.map((section) =>
-                        section.id === selectedSection.id ? { ...section, title: event.target.value } : section,
-                      ),
-                    }))
-                  }}
-                />
-              </label>
+              <div className="space-y-2">
+                <label className="block">
+                  <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-neutral-600">Item</span>
+                  <select
+                    className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                    value={selectedItem?.id ?? ''}
+                    onChange={(event) => {
+                      setSelectedItemId(event.target.value)
+                    }}
+                  >
+                    {selectedSection.items.map((item) => (
+                      <option key={item.id} value={item.id}>{item.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
+                    onClick={addMenuItem}
+                  >
+                    Add Item
+                  </button>
+                  <button
+                    type="button"
+                    className="h-10 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
+                    onClick={deleteSelectedMenuItem}
+                    disabled={!selectedItem || selectedSection.items.length <= 1}
+                  >
+                    Delete Item
+                  </button>
+                </div>
+              </div>
+            </div>
 
-              {selectedItem && (
-                <>
+            <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-sm font-black uppercase tracking-[0.12em] text-neutral-700">Live Notices</p>
+              <label className="block">
+                <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-neutral-600">Notice</span>
+                <select
+                  className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  value={selectedNotice?.id ?? ''}
+                  onChange={(event) => {
+                    setSelectedNoticeId(event.target.value)
+                  }}
+                >
+                  {board.sidebarItems.map((notice) => (
+                    <option key={notice.id} value={notice.id}>{notice.headline || 'Untitled notice'}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="h-10 rounded-lg border border-neutral-300 bg-white px-2 text-xs font-bold text-neutral-800"
+                  onClick={addNotice}
+                >
+                  Add Notice
+                </button>
+                <button
+                  type="button"
+                  className="h-10 rounded-lg border border-red-300 bg-red-50 px-2 text-xs font-bold text-red-700 disabled:opacity-50"
+                  onClick={deleteSelectedNotice}
+                  disabled={!selectedNotice || board.sidebarItems.length <= 1}
+                >
+                  Delete Notice
+                </button>
+              </div>
+              <p className="text-xs text-neutral-600">Tip: choose a notice here, then edit its fields below.</p>
+            </div>
+          </section>
+
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
+            <p>
+              Editing section: <span className="font-bold text-neutral-900">{selectedSection.title}</span>
+            </p>
+            <p>
+              Editing item: <span className="font-bold text-neutral-900">{selectedItem?.name ?? 'No item selected'}</span>
+            </p>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Section Name</span>
+            <input
+              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+              value={selectedSection.title}
+              onChange={(event) => {
+                setBoard((prev) => ({
+                  ...prev,
+                  menuSections: prev.menuSections.map((section) =>
+                    section.id === selectedSection.id ? { ...section, title: event.target.value } : section,
+                  ),
+                }))
+              }}
+            />
+          </label>
+
+          {selectedItem && (
+            <>
               <label className="block">
                 <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Name</span>
                 <input
@@ -992,126 +835,188 @@ export const DashboardPage = () => {
                   })}
                 </div>
               </fieldset>
-                </>
-              )}
             </>
           )}
 
-          {editorMode === 'NOTICES' && (
-            <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
-              <legend className="px-1 text-sm font-bold uppercase tracking-wide text-neutral-600">Live Notices</legend>
-              <p className="text-sm text-neutral-700">
-                Editing notice: <span className="font-bold text-neutral-900">{selectedNotice?.headline ?? 'No notice selected'}</span>
-              </p>
-
-              {selectedNotice && (
-                <>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice Type</span>
-                    <select
-                      className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
-                      value={selectedNotice.kind}
-                      onChange={(event) => updateNotice((current) => ({
-                        ...current,
-                        kind: event.target.value === 'ALLERGEN' ? 'ALLERGEN' : 'OFFER',
-                      }))}
-                    >
-                      <option value="OFFER">Offer</option>
-                      <option value="ALLERGEN">Allergen</option>
-                    </select>
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Headline</span>
-                    <input
-                      className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-                      value={selectedNotice.headline}
-                      onChange={(event) => updateNotice((current) => ({ ...current, headline: event.target.value }))}
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Body</span>
-                    <textarea
-                      className="min-h-24 w-full rounded-xl border border-neutral-300 px-4 py-3 text-base"
-                      value={selectedNotice.body}
-                      onChange={(event) => updateNotice((current) => ({ ...current, body: event.target.value }))}
-                    />
-                  </label>
-                </>
-              )}
-            </fieldset>
-          )}
-
-          {editorMode === 'MEDIA' && (
-            <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
-              <legend className="px-1 text-sm font-bold uppercase tracking-wide text-neutral-600">Media Playlist</legend>
-              {board.mediaPlaylist.map((asset) => (
-                <div key={asset.id} className="space-y-2 rounded-xl border border-neutral-200 bg-white p-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <select
-                      className="h-12 rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-                      value={asset.type}
-                      onChange={(event) => updateMediaAsset(asset.id, (current) => ({
-                        ...current,
-                        type: event.target.value === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-                      }))}
-                    >
-                      <option value="IMAGE">Image (Ken Burns)</option>
-                      <option value="VIDEO">Video</option>
-                    </select>
-
-                    <input
-                      className="h-12 rounded-xl border border-neutral-300 px-3 text-sm"
-                      type="number"
-                      min="3"
-                      max="180"
-                      value={asset.durationSeconds}
-                      onChange={(event) => updateMediaAsset(asset.id, (current) => ({
-                        ...current,
-                        durationSeconds: Math.max(3, Number.parseInt(event.target.value, 10) || 10),
-                      }))}
-                    />
-                  </div>
-
-                  <input
-                    className="h-12 w-full rounded-xl border border-neutral-300 px-3 text-sm"
-                    placeholder="https://...mp4 or /your-image.jpg"
-                    value={asset.url}
-                    onChange={(event) => updateMediaAsset(asset.id, (current) => ({
+          <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
+            <legend className="px-1 text-sm font-bold uppercase tracking-wide text-neutral-600">Edit Selected Notice</legend>
+            {selectedNotice && (
+              <>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Notice Type</span>
+                  <select
+                    className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                    value={selectedNotice.kind}
+                    onChange={(event) => updateNotice((current) => ({
                       ...current,
-                      url: event.target.value,
+                      kind: event.target.value === 'ALLERGEN' ? 'ALLERGEN' : 'OFFER',
                     }))}
-                  />
-
-                  <input
-                    className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      void uploadMediaAssetImage(event, asset.id)
-                    }}
-                  />
-
-                  <button
-                    type="button"
-                    className="h-12 w-full rounded-xl border border-red-300 bg-red-50 text-sm font-bold text-red-700"
-                    onClick={() => removeMediaAsset(asset.id)}
                   >
-                    Remove Asset
-                  </button>
-                </div>
-              ))}
+                    <option value="OFFER">Offer</option>
+                    <option value="ALLERGEN">Allergen</option>
+                  </select>
+                </label>
 
-              <button
-                type="button"
-                className="h-12 w-full rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800"
-                onClick={addMediaAsset}
-              >
-                Add Media Asset
-              </button>
-            </fieldset>
-          )}
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Headline</span>
+                  <input
+                    className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                    value={selectedNotice.headline}
+                    onChange={(event) => updateNotice((current) => ({ ...current, headline: event.target.value }))}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Body</span>
+                  <textarea
+                    className="min-h-24 w-full rounded-xl border border-neutral-300 px-4 py-3 text-base"
+                    value={selectedNotice.body}
+                    onChange={(event) => updateNotice((current) => ({ ...current, body: event.target.value }))}
+                  />
+                </label>
+              </>
+            )}
+          </fieldset>
+
+          <details className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
+            <summary className="cursor-pointer text-sm font-bold uppercase tracking-wide text-neutral-700">Advanced Media and Playback</summary>
+            <div className="mt-3 space-y-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Playback Mode</span>
+                <select
+                  className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-base"
+                  value={board.playbackMode}
+                  onChange={(event) => updatePlaybackMode(event.target.value as PlaybackMode)}
+                >
+                  <option value="MENU_ONLY">Menu only</option>
+                  <option value="MIXED">Menu + media rotation</option>
+                  <option value="MEDIA_ONLY">Media only</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Menu Hold (seconds)</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  type="number"
+                  min="5"
+                  max="120"
+                  value={board.menuHoldSeconds}
+                  onChange={(event) => {
+                    const seconds = Number.parseInt(event.target.value, 10)
+                    setBoard((prev) => ({
+                      ...prev,
+                      menuHoldSeconds: Number.isFinite(seconds) ? Math.max(5, seconds) : 20,
+                    }))
+                  }}
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Header Image URL</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  placeholder="/screen-logo.png or https://..."
+                  value={board.heroImageUrl ?? ''}
+                  onChange={(event) => updateBoardImage('heroImageUrl', event.target.value)}
+                />
+                <input
+                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadBoardImage(event, 'heroImageUrl')
+                  }}
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Sidebar Image URL</span>
+                <input
+                  className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
+                  placeholder="/screen-logo.png or https://..."
+                  value={board.sidebarImageUrl ?? ''}
+                  onChange={(event) => updateBoardImage('sidebarImageUrl', event.target.value)}
+                />
+                <input
+                  className="mt-2 h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    void uploadBoardImage(event, 'sidebarImageUrl')
+                  }}
+                />
+              </label>
+
+              <fieldset className="space-y-2 rounded-2xl border border-neutral-200 bg-white p-3">
+                <legend className="px-1 text-sm font-bold uppercase tracking-wide text-neutral-600">Media Playlist</legend>
+                {board.mediaPlaylist.map((asset) => (
+                  <div key={asset.id} className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        className="h-12 rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                        value={asset.type}
+                        onChange={(event) => updateMediaAsset(asset.id, (current) => ({
+                          ...current,
+                          type: event.target.value === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+                        }))}
+                      >
+                        <option value="IMAGE">Image (Ken Burns)</option>
+                        <option value="VIDEO">Video</option>
+                      </select>
+
+                      <input
+                        className="h-12 rounded-xl border border-neutral-300 px-3 text-sm"
+                        type="number"
+                        min="3"
+                        max="180"
+                        value={asset.durationSeconds}
+                        onChange={(event) => updateMediaAsset(asset.id, (current) => ({
+                          ...current,
+                          durationSeconds: Math.max(3, Number.parseInt(event.target.value, 10) || 10),
+                        }))}
+                      />
+                    </div>
+
+                    <input
+                      className="h-12 w-full rounded-xl border border-neutral-300 px-3 text-sm"
+                      placeholder="https://...mp4 or /your-image.jpg"
+                      value={asset.url}
+                      onChange={(event) => updateMediaAsset(asset.id, (current) => ({
+                        ...current,
+                        url: event.target.value,
+                      }))}
+                    />
+
+                    <input
+                      className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        void uploadMediaAssetImage(event, asset.id)
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      className="h-12 w-full rounded-xl border border-red-300 bg-red-50 text-sm font-bold text-red-700"
+                      onClick={() => removeMediaAsset(asset.id)}
+                    >
+                      Remove Asset
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="h-12 w-full rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800"
+                  onClick={addMediaAsset}
+                >
+                  Add Media Asset
+                </button>
+              </fieldset>
+            </div>
+          </details>
 
           <button
             type="submit"

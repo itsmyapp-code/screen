@@ -16,9 +16,11 @@ import type { PlaybackMode } from '../types/signage'
 const MediaFrame = ({
   url,
   type,
+  liteMode,
 }: {
   url: string
   type: 'IMAGE' | 'VIDEO'
+  liteMode: boolean
 }) => {
   if (type === 'VIDEO') {
     return (
@@ -34,7 +36,14 @@ const MediaFrame = ({
     )
   }
 
-  return <img src={url} alt="Promotional slide" className="ken-burns-media h-full w-full object-cover" loading="eager" />
+  return (
+    <img
+      src={url}
+      alt="Promotional slide"
+      className={liteMode ? 'h-full w-full object-cover' : 'ken-burns-media h-full w-full object-cover'}
+      loading="eager"
+    />
+  )
 }
 
 export const DisplayPage = () => {
@@ -43,6 +52,8 @@ export const DisplayPage = () => {
   const boardId = params.boardId ?? defaultBoardId
   const scale = useViewportScale()
   const { board } = useLiveMenu(boardId)
+  const tvMode = searchParams.get('tv')
+  const liteMode = tvMode === 'lite' || tvMode === '1'
   const [showMedia, setShowMedia] = useState(false)
   const [mediaIndex, setMediaIndex] = useState(0)
 
@@ -105,7 +116,11 @@ export const DisplayPage = () => {
   const content = useMemo(() => {
     if ((mode === 'MEDIA_ONLY' || (mode === 'MIXED' && showMedia)) && hasMedia) {
       const activeMedia = board.mediaPlaylist[mediaIndex % board.mediaPlaylist.length]
-      return <MediaFrame type={activeMedia.type} url={activeMedia.url} />
+      return <MediaFrame type={activeMedia.type} url={activeMedia.url} liteMode={liteMode} />
+    }
+
+    if (liteMode) {
+      return <ThreeColumnLayout board={board} />
     }
 
     if (board.layoutStyle === 'TWO_COLUMN_GRID') {
@@ -117,7 +132,7 @@ export const DisplayPage = () => {
     }
 
     return <ThreeColumnLayout board={board} />
-  }, [board, hasMedia, mediaIndex, mode, showMedia])
+  }, [board, hasMedia, mediaIndex, mode, showMedia, liteMode])
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-950 text-neutral-50">

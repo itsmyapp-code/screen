@@ -69,8 +69,6 @@ const BottomNoticeBanner = ({ board }: LayoutProps) => {
             <p className="text-sm font-black uppercase tracking-[0.18em] text-neutral-400">Live Notices</p>
             <h2 className="text-2xl font-black leading-tight text-neutral-100">{active.headline}</h2>
           </div>
-          <div className="h-10 w-px bg-neutral-700" />
-          <p className="text-sm font-semibold text-neutral-400">Ask staff for allergen matrix and ingredient details.</p>
         </div>
 
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-neutral-700 bg-neutral-900/65 px-3 py-2">

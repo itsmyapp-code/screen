@@ -206,7 +206,7 @@ export const DisplaySettingsPage = () => {
                 className="rounded-xl border border-neutral-200 bg-[linear-gradient(135deg,#111827_0%,#334155_45%,#0f172a_100%)] p-3 text-left text-white shadow-md"
               >
                 <p className="text-sm font-black">{preset.name}</p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-white/80">{preset.layoutStyle.replaceAll('_', ' ')}</p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-white/80">{preset.layoutStyle.replace(/_/g, ' ')}</p>
               </button>
             ))}
           </div>

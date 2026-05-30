@@ -37,6 +37,7 @@ export interface MediaAsset {
 
 export interface SignageBoardConfig {
   boardId: string
+  ownerUid?: string
   storeName: string
   layoutStyle: LayoutStyle
   playbackMode: PlaybackMode

@@ -9,7 +9,7 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    function ownsBoard(boardId) {
+    function boardMappedToUser(boardId) {
       return signedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.boardId == boardId;
@@ -23,7 +23,20 @@ service cloud.firestore {
     }
 
     match /boards/{boardId} {
-      allow read, write: if ownsBoard(boardId);
+      allow create: if signedIn()
+        && request.resource.data.boardId is string
+        && request.resource.data.boardId == boardId
+        && request.resource.data.ownerUid is string
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      allow read, update, delete: if signedIn()
+        && (
+          boardMappedToUser(boardId)
+          || (
+            resource.data.ownerUid is string
+            && resource.data.ownerUid == request.auth.uid
+          )
+        );
     }
 
     match /{document=**} {

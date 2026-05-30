@@ -28,14 +28,18 @@ export const ensureUserBoard = async (user: User): Promise<string> => {
   const profileRef = doc(db, 'users', user.uid)
   const profileSnapshot = await getDoc(profileRef)
 
-  if (!profileSnapshot.exists()) {
+  const existingProfileBoardId = profileSnapshot.exists()
+    ? (profileSnapshot.data().boardId as string | undefined)
+    : undefined
+
+  if (!profileSnapshot.exists() || existingProfileBoardId !== boardId) {
     const profile: UserProfile = {
       boardId,
       email: user.email,
       createdAt: serverTimestamp(),
     }
 
-    await setDoc(profileRef, profile)
+    await setDoc(profileRef, profile, { merge: true })
   }
 
   const boardRef = doc(db, 'boards', boardId)
@@ -48,10 +52,19 @@ export const ensureUserBoard = async (user: User): Promise<string> => {
     const seededBoard: SignageBoardConfig = {
       ...seed,
       boardId,
+      ownerUid: user.uid,
       storeName,
     }
 
     await setDoc(boardRef, seededBoard)
+  } else {
+    await setDoc(
+      boardRef,
+      {
+        ownerUid: user.uid,
+      },
+      { merge: true },
+    )
   }
 
   return boardId

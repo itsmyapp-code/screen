@@ -23,6 +23,7 @@ export const DashboardPage = () => {
   const { user } = useAuthUser()
   const [boardId, setBoardId] = useState<string | null>(null)
   const [loadingBoard, setLoadingBoard] = useState(true)
+  const [setupError, setSetupError] = useState<string>('')
   const [board, setBoard] = useState<SignageBoardConfig>(defaultBoards[defaultBoardId])
   const [selectedSectionId, setSelectedSectionId] = useState(board.menuSections[0].id)
   const [selectedItemId, setSelectedItemId] = useState(board.menuSections[0].items[0].id)
@@ -36,9 +37,15 @@ export const DashboardPage = () => {
         return
       }
 
-      const provisionedBoardId = await ensureUserBoard(user)
-      setBoardId(provisionedBoardId)
-      setLoadingBoard(false)
+      try {
+        const provisionedBoardId = await ensureUserBoard(user)
+        setBoardId(provisionedBoardId)
+        setSetupError('')
+      } catch (reason) {
+        setSetupError(reason instanceof Error ? reason.message : 'Unable to access board data.')
+      } finally {
+        setLoadingBoard(false)
+      }
     }
 
     void setup()
@@ -179,6 +186,18 @@ export const DashboardPage = () => {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-100 text-neutral-700">
         Preparing your board...
+      </main>
+    )
+  }
+
+  if (setupError) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-neutral-100 px-4 text-neutral-700">
+        <div className="max-w-xl rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <p className="font-bold">Board setup failed</p>
+          <p className="mt-1">{setupError}</p>
+          <p className="mt-2">Check Firestore rules deployment and ensure Email/Password auth is enabled.</p>
+        </div>
       </main>
     )
   }

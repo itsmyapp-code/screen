@@ -591,19 +591,23 @@ export const DashboardPage = () => {
                     setHelpOpen((current) => !current)
                   }}
                 >
-                  {helpOpen ? 'Hide Help' : 'Open Help'}
+                  {helpOpen ? 'Hide Quick Help' : 'Quick Help'}
                 </button>
               </div>
 
               <p className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
-                Menu, section, item, and live notice editing is now on the main dashboard page below.
+                Everything you need is on the dashboard. Pick something, edit it, then push the update to the screen.
               </p>
 
               {helpOpen && (
                 <article className="mt-4 space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-800">
-                  <h2 className="text-base font-black text-neutral-900">Help: Running Your Screen</h2>
-                  <p>Select a section, item, and notice in the on-page manager cards.</p>
-                  <p>Edit content and pricing, then tap Push Update to Display.</p>
+                  <h2 className="text-base font-black text-neutral-900">Quick Help</h2>
+                  <ol className="list-decimal space-y-2 pl-4">
+                    <li>Choose the section, item, or notice you want to change.</li>
+                    <li>Edit the text, price, image, or status tags below.</li>
+                    <li>Tap Push Update to Display when you are ready.</li>
+                  </ol>
+                  <p className="pt-1 text-neutral-700">Need to change the look or layout? Open Display Settings from this menu.</p>
                 </article>
               )}
             </aside>
@@ -628,6 +632,7 @@ export const DashboardPage = () => {
                 </span>
               </button>
               <p className="text-sm font-semibold uppercase tracking-[0.14em] text-neutral-500">Merchant Remote</p>
+              
             </div>
 
             <div className="flex items-center gap-2">
@@ -639,7 +644,7 @@ export const DashboardPage = () => {
                   setMenuOpen(true)
                 }}
               >
-                Help
+                Quick Help
               </button>
               <button
                 type="button"
@@ -652,21 +657,33 @@ export const DashboardPage = () => {
               </button>
             </div>
           </div>
-          <h1 className="text-3xl font-black text-neutral-900">Digital Signage Dashboard</h1>
+          <h1 className="text-3xl font-black text-neutral-900">Edit the screen in plain steps</h1>
           <p className="text-base text-neutral-700">
-            Update menu sections, items, prices, and notices directly on this screen.
+            Pick a section, change the details below, then push the update to the display.
           </p>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-bold">Subscription Logic (DMCCA 2027)</p>
-            <p className="mt-1">Easy Exit enabled in one tap. Cooling-off reminder at day 13 for all paid plans.</p>
-            <p className="mt-1">All prices shown upfront in GBP with no drip pricing patterns.</p>
+          <div className="grid gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950 sm:grid-cols-3">
+            <div className="rounded-xl bg-white/80 p-3 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Step 1</p>
+              <p className="mt-1 font-bold text-neutral-900">Choose what you want to change</p>
+              <p className="mt-1 text-neutral-700">Use the section, item, and notice selectors below.</p>
+            </div>
+            <div className="rounded-xl bg-white/80 p-3 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Step 2</p>
+              <p className="mt-1 font-bold text-neutral-900">Edit the details</p>
+              <p className="mt-1 text-neutral-700">Update names, prices, descriptions, images, or notice text.</p>
+            </div>
+            <div className="rounded-xl bg-white/80 p-3 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Step 3</p>
+              <p className="mt-1 font-bold text-neutral-900">Push the update</p>
+              <p className="mt-1 text-neutral-700">Tap Push Update to Display when you are ready.</p>
+            </div>
           </div>
         </header>
 
         <form className="mt-6 space-y-4" onSubmit={onSave}>
           <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-3 lg:grid-cols-2">
             <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-3">
-              <p className="text-sm font-black uppercase tracking-[0.12em] text-neutral-700">Section and Item</p>
+              <p className="text-sm font-black uppercase tracking-[0.12em] text-neutral-700">Edit Menu</p>
 
               <div className="space-y-2">
                 <label className="block">

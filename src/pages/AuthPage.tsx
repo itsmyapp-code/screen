@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { ensureUserBoard } from '../lib/userBoard'
 import { useAuthUser } from '../hooks/useAuthUser'
@@ -14,7 +18,9 @@ export const AuthPage = () => {
   const [mode, setMode] = useState<AuthMode>('LOGIN')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string>('')
+  const [resetMessage, setResetMessage] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
 
   if (!loading && user) {
@@ -29,6 +35,7 @@ export const AuthPage = () => {
 
     setSubmitting(true)
     setError('')
+    setResetMessage('')
 
     try {
       if (mode === 'LOGIN') {
@@ -43,6 +50,26 @@ export const AuthPage = () => {
       setError(reason instanceof Error ? reason.message : 'Authentication failed.')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const forgotPassword = async (): Promise<void> => {
+    if (!auth) {
+      setError('Firebase auth is not configured. Add VITE_FIREBASE_* variables.')
+      return
+    }
+
+    if (!email.trim()) {
+      setError('Enter your email first, then tap Forgot password.')
+      return
+    }
+
+    try {
+      setError('')
+      await sendPasswordResetEmail(auth, email.trim())
+      setResetMessage('Password reset email sent. Check your inbox and spam folder.')
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to send reset email.')
     }
   }
 
@@ -98,17 +125,37 @@ export const AuthPage = () => {
 
           <label className="block">
             <span className="mb-2 block text-sm font-bold uppercase tracking-wide text-neutral-600">Password</span>
-            <input
-              className="h-12 w-full rounded-xl border border-neutral-300 px-4 text-base"
-              type="password"
-              minLength={6}
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
+            <div className="relative">
+              <input
+                className="h-12 w-full rounded-xl border border-neutral-300 px-4 pr-28 text-base"
+                type={showPassword ? 'text' : 'password'}
+                minLength={6}
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 h-8 -translate-y-1/2 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-bold text-neutral-800"
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </label>
 
+          <button
+            type="button"
+            className="h-12 w-full rounded-xl border border-neutral-300 bg-white text-sm font-bold text-neutral-800"
+            onClick={() => {
+              void forgotPassword()
+            }}
+          >
+            Forgot password
+          </button>
+
           {error && <p className="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700">{error}</p>}
+          {resetMessage && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">{resetMessage}</p>}
 
           <button
             type="submit"
